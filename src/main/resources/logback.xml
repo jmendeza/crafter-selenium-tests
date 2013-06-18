@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="filelog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>phantomjsdriver.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <param name="FileNamePattern" value="manager.%i.log" />
+            <param name="MinIndex" value="1" />
+            <param name="MaxIndex" value="3" />
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <param name="MaxFileSize" value="5MB" />
+        </triggeringPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+        </encoder>
+    </appender>
+    <logger name="org.springframework.web" level="info"/>
+    <logger name="cr.go.munilaunion" level="debug"/>
+    <root level="info">
+        <appender-ref ref="stdout" />
+        <appender-ref ref="filelog" />
+    </root>
+</configuration>

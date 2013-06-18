@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:context="http://www.springframework.org/schema/context"
+             xmlns:util="http://www.springframework.org/schema/util" xmlns:p="http://www.springframework.org/schema/p"
+             xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+
+
+    <!-- DispatcherServlet Context: defines this servlet's request-processing
+        infrastructure -->
+    <context:component-scan base-package="org.craftercms.views" />
+    <beans:bean id="LogginInjector"
+                class="org.craftercms.ext.spring.LoggerPostProcessor" />
+
+    <beans:bean id="multipartResolver"
+                class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <beans:property name="maxUploadSize" value="104857600" /> <!-- the maximum file size in bytes: 100 MB -->
+    </beans:bean>
+
+
+    <resources mapping="/resources/**" location="/resources/" />
+    <!-- Enables the Spring MVC @Controller programming model -->
+    <annotation-driven content-negotiation-manager="contentNegotiationManager" >
+        <message-converters>
+            <beans:bean id="jacksonMessageConverter"
+                        p:supportedMediaTypes="application/json"
+                        class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+            </beans:bean>
+
+        </message-converters>
+    </annotation-driven>
+    <!-- Handles HTTP GET requests for /resources/** by efficiently serving
+        up static resources in the ${webappRoot}/resources directory -->
+
+    <!-- freemarker config -->
+    <beans:bean id="freemarkerConfig"
+                class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <beans:property name="templateLoaderPath" value="/WEB-INF/views/" />
+        <beans:property name="freemarkerSettings" value="cache_storage=freemarker.cache.NullCacheStorage" />
+        <beans:property name="freemarkerVariables">
+            <beans:map>
+                <beans:entry key="xml_escape" value-ref="fmXmlEscape" />
+                <!--<beans:entry key="config" value-ref="systemConfigService"/>-->
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    <beans:bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape" />
+
+    <beans:bean id="contentNegotiationManager"
+                class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <beans:property name="favorPathExtension" value="true" />
+        <beans:property name="favorParameter" value="false" />
+        <beans:property name="ignoreAcceptHeader" value="false" />
+        <beans:property name="mediaTypes">
+            <beans:value>
+                html=text/html
+                json=application/json
+                *=*/*
+            </beans:value>
+        </beans:property>
+    </beans:bean>
+
+    <!-- REST -->
+    <beans:bean id="contentNegotiatingViewResolver"
+                class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <beans:property name="order" value="0" />
+        <beans:property name="contentNegotiationManager" ref="contentNegotiationManager" />
+
+    </beans:bean>
+    <beans:bean
+            class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <beans:property name="prefix" value="" />
+        <beans:property name="suffix" value=".ftl" />
+        <beans:property name="exposeSpringMacroHelpers" value="true" />
+        <beans:property name="exposePathVariables" value="true" />
+        <beans:property name="exposeSessionAttributes" value="true" />
+        <beans:property name="exposeRequestAttributes" value="true"/>
+        <beans:property name="requestContextAttribute" value="rc"/>
+        <beans:property name="cache" value="false"/>
+    </beans:bean>
+
+
+</beans:beans>
