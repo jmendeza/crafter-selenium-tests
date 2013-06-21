@@ -22,7 +22,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import com.thoughtworks.selenium.Selenium;
 
 /**
- * @author prav
+ * @author Praveen C Elineni
  *
  */
 public class LabelTest {
@@ -39,7 +39,7 @@ public class LabelTest {
 
     @Before
     public void setUp() throws Exception {
-    	seleniumProperties.load(InputTest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
+    	seleniumProperties.load(LabelTest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
 
     	desiredCapabilities = new DesiredCapabilities();
         desiredCapabilities.setJavascriptEnabled(true);
@@ -49,7 +49,7 @@ public class LabelTest {
         driver = new PhantomJSDriver(desiredCapabilities);
     	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-    	WidgetTestUtil.editPage(driver, 
+    	CStudioSeleniumUtil.loginAndEditPage(driver,
 									seleniumProperties.getProperty("craftercms.admin.username"), 
 									seleniumProperties.getProperty("craftercms.admin.password"),
 									seleniumProperties.getProperty("craftercms.label.widget.edit.page"), 

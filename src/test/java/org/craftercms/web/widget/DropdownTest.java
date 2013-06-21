@@ -29,7 +29,7 @@ import com.thoughtworks.selenium.Selenium;
  *
  */
 public class DropdownTest {
-    private static final Logger logger = Logger.getLogger("InputTest.class");
+    private static final Logger logger = Logger.getLogger("DropdownTest.class");
 
 	private final static String SELENIUM_PROPERTIES = "selenium.properties";
     protected Selenium selenium;
@@ -53,7 +53,7 @@ public class DropdownTest {
         driver = new PhantomJSDriver(desiredCapabilities);
     	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-    	WidgetTestUtil.editPage(driver, 
+    	CStudioSeleniumUtil.loginAndEditPage(driver, 
 									seleniumProperties.getProperty("craftercms.admin.username"), 
 									seleniumProperties.getProperty("craftercms.admin.password"),
 									seleniumProperties.getProperty("craftercms.dropdown.widget.edit.page"), 

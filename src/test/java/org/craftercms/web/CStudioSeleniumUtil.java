@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Set;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -175,6 +176,30 @@ public class CStudioSeleniumUtil {
 			e.printStackTrace();
 		}
 		return result;
+    }
+
+    public static void loginAndEditPage(WebDriver driver, String userName, String password, String editPage, String contentType, String siteName) {
+    	CStudioSeleniumUtil.tryLogin(driver, userName, password, true);
+
+    	driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), siteName));
+
+        // Execute JS before Edit Page
+        CStudioSeleniumUtil.editPageJS(driver, editPage, contentType, siteName);
+
+        // Wait for the window to load
+        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+          public Boolean apply(WebDriver d) {
+            return d.getWindowHandles().size() > 1;
+          }
+        });
+
+        // Switch to edit window
+        Set<String> handles = driver.getWindowHandles();
+        for (String h : handles) {
+          driver.switchTo().window(h);
+          if (driver.getCurrentUrl().contains("cstudio-form"))
+        	  break;
+        }
     }
 
     /**

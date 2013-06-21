@@ -3,10 +3,12 @@
  */
 package org.craftercms.web.widget;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -17,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -26,7 +29,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
  *
  */
 public class DateTimeTest {
-    private static final Logger logger = Logger.getLogger("InputTest.class");
+    private static final Logger logger = Logger.getLogger("DateTimeTest.class");
 
 	private final static String SELENIUM_PROPERTIES = "selenium.properties";
     protected WebDriver driver;
@@ -35,11 +38,13 @@ public class DateTimeTest {
     private StringBuffer verificationErrors = new StringBuffer();
 
     private String validationString;
-    private final static String updateString = "0700";
+    private static String updateString = "0700";
+    private static int dateString;
 
     @SuppressWarnings("deprecation")
 	@Before
     public void setUp() throws Exception {
+
     	seleniumProperties.load(DateTimeTest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
 
     	desiredCapabilities = new DesiredCapabilities();
@@ -50,21 +55,21 @@ public class DateTimeTest {
         driver = new PhantomJSDriver(desiredCapabilities);
     	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-    	WidgetTestUtil.editPage(driver, 
+    	CStudioSeleniumUtil.loginAndEditPage(driver, 
 									seleniumProperties.getProperty("craftercms.admin.username"), 
 									seleniumProperties.getProperty("craftercms.admin.password"),
 									seleniumProperties.getProperty("craftercms.datetime.widget.edit.page"), 
 									seleniumProperties.getProperty("craftercms.datetime.widget.content.type"), 
 									seleniumProperties.getProperty("craftercms.sitename"));
     	Date todayDate = new Date();
-    	System.out.println(todayDate.getDate());
+    	dateString = todayDate.getDate();
     }
 
     @Test
     public void testWidgetControlRequired() {
         logger.info("Date Required Entered");
         CStudioSeleniumUtil.clickOn(driver, By.cssSelector("#datetime-required .date"));
-        CStudioSeleniumUtil.clickOn(driver, By.linkText("20"));
+        CStudioSeleniumUtil.clickOn(driver, By.linkText(String.valueOf(dateString)));
         driver.findElement(By.cssSelector("#internal-name .datum")).click();
         validationString = driver.findElement(By.cssSelector("#datetime-required .validation-hint")).getAttribute("class");
         assertTrue(validationString.contains("cstudio-form-control-valid"));
@@ -82,7 +87,6 @@ public class DateTimeTest {
         assertTrue(validationString.contains("cstudio-form-control-valid"));
     }
 
-/*
     @Test
     public void testWidgetControlNotRequired() {
         // not required - content not entered - valid
@@ -106,20 +110,6 @@ public class DateTimeTest {
         logger.info("Widget Readonly");
         assertEquals(driver.findElement(By.cssSelector("#date-time-readonly .date")).getAttribute("disabled"), "true");
         assertEquals(driver.findElement(By.cssSelector("#date-time-readonly .time")).getAttribute("disabled"), "true");
-    }
-    
-    @Test
-    public void testWidgetSetNow() {
-        // set now link
-    	List<WebElement> elements = driver.findElements(By.cssSelector("#date-time-setnow .date-link"));
-    	assertEquals(elements.size(), 1);
-    	
-        logger.info("Click Set Now Link");
-        driver.findElement(By.cssSelector("#date-time-setnow .date-link")).click();
-
-        // TODO: Check updated date
-        System.out.println(driver.findElement(By.cssSelector("#date-time-setnow .date")).getAttribute("value"));
-        System.out.println(driver.findElement(By.cssSelector("#date-time-setnow .time")).getAttribute("value"));
     }
 
     @Test
@@ -148,24 +138,24 @@ public class DateTimeTest {
     public void testWidgetControlDateAndTime() {
         // Date and Time Widget
         logger.info("Widget Date and Time");
-        List<WebElement> elements = driver.findElements(By.cssSelector("#date-time-setnow .date"));
+        List<WebElement> elements = driver.findElements(By.cssSelector("#date-time-allow-past .date"));
         assertEquals(elements.size(), 1);
         
-        elements = driver.findElements(By.cssSelector("#date-time-setnow .time"));
+        elements = driver.findElements(By.cssSelector("#date-time-allow-past .time"));
         assertEquals(elements.size(), 1);
     }
 
     @Test
     public void testAllowPastDate() throws InterruptedException {
         logger.info("Past Date Entered");
+        int prevDate = dateString == 1 ? dateString : dateString - 1; 
         CStudioSeleniumUtil.clickOn(driver, By.cssSelector("#date-time-allow-past .date"));
-        CStudioSeleniumUtil.clickOn(driver, By.linkText("9"));
+        CStudioSeleniumUtil.clickOn(driver, By.linkText(String.valueOf(prevDate)));
         driver.findElement(By.cssSelector("#internal-name .datum")).click();
 
         validationString = driver.findElement(By.cssSelector("#date-time-allow-past .validation-hint")).getAttribute("class");
         assertEquals(validationString.contains("cstudio-form-control-invalid"), false);
    }
-*/
 
     @After
     public void tearDown() throws Exception {

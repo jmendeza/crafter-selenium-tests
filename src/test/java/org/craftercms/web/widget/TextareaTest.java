@@ -52,7 +52,7 @@ public class TextareaTest {
         driver = new PhantomJSDriver(desiredCapabilities);
     	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-    	WidgetTestUtil.editPage(driver, 
+    	CStudioSeleniumUtil.loginAndEditPage(driver,
     									seleniumProperties.getProperty("craftercms.admin.username"), 
     									seleniumProperties.getProperty("craftercms.admin.password"),
     									seleniumProperties.getProperty("craftercms.textarea.widget.edit.page"), 

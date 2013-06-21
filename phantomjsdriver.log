@@ -1,0 +1,2 @@
+12:45:11.735 [Forwarding getWindowHandles on session 6fa1bb40-d836-11e2-b675-ff69c2b44a73 to remote] INFO  o.a.h.impl.client.DefaultHttpClient - I/O exception (java.net.SocketException) caught when processing request: Connection reset
+12:45:11.741 [Forwarding getWindowHandles on session 6fa1bb40-d836-11e2-b675-ff69c2b44a73 to remote] INFO  o.a.h.impl.client.DefaultHttpClient - Retrying request
