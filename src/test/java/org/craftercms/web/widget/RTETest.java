@@ -78,7 +78,7 @@ public class RTETest {
     		assertTrue(validationString.contains("cstudio-form-control-valid"));
     	} else {
     		assertTrue(validationString.contains("cstudio-form-control-invalid"));
-    	}
+    	}    	
     }
 
     @Test
