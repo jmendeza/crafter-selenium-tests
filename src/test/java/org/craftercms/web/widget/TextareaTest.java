@@ -94,7 +94,6 @@ public class TextareaTest {
         assertEquals(validationString.contains("cstudio-form-control-invalid"), false);    	
     }
     
-
     @Test
     public void testTextareaControlReadonly() {
         // read-only
@@ -126,6 +125,17 @@ public class TextareaTest {
         if (widgetValue != null && widgetCount != null && widgetCount.indexOf(" / ") != -1) {
         	assertEquals(String.valueOf(widgetValue.length()), widgetCount.substring(widgetCount.indexOf(" / ") + 3));
         }
+    }
+
+    @Test
+    public void testTextAreaRowsColumns() {
+    	// check text area pre-set columns and rows
+    	logger.info("Textarea pre-set columns and rows");
+    	String rows = driver.findElement(By.cssSelector("#textarea-noresize .datum")).getAttribute("rows");
+    	String cols = driver.findElement(By.cssSelector("#textarea-noresize .datum")).getAttribute("cols");
+    	
+    	assertEquals(rows, "10");
+    	assertEquals(cols, "40");
     }
 
     @After
