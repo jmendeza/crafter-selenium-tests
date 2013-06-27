@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -39,16 +39,6 @@ public class RTETest {
     private StringBuffer verificationErrors = new StringBuffer();
     private String validationString;
 
-    /* 
-     * 
-     * TODO:
-     * 
-     * 1. How do we assign value in RTE from selenium
-     * 2. Force BR tag not working
-     * 3. Max Count not working
-     * 
-     */
-    
     @Before
     public void setUp() throws Exception {
     	seleniumProperties.load(RTETest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
@@ -58,7 +48,7 @@ public class RTETest {
         desiredCapabilities.setCapability("takesScreenshot", true);
         desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
         		                             seleniumProperties.getProperty("craftercms.phantomjs.path"));
-        driver = new PhantomJSDriver(desiredCapabilities);
+        driver = new FirefoxDriver(desiredCapabilities);
     	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
     	CStudioSeleniumUtil.loginAndEditPage(driver,
