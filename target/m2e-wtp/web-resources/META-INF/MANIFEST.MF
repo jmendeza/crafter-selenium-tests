@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Implementation-Title: Test
+Implementation-Version: 1.0-SNAPSHOT
+Implementation-Vendor-Id: org.test
+Build-Jdk: 1.6.0_51
+Built-By: prav
+Created-By: Maven Integration for Eclipse
+
