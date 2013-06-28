@@ -4,50 +4,24 @@
 package org.craftercms.web.basic;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import com.thoughtworks.selenium.Selenium;
 
 /**
  * @author Praveen C Elineni
  *
  */
-public class PageEditTests {
-    private final static String SELENIUM_PROPERTIES = "selenium.properties";
-    protected Selenium selenium;
-    protected WebDriver driver;
-    protected static DesiredCapabilities desiredCapabilities;
-    protected Properties seleniumProperties = new Properties();
-    private StringBuffer verificationErrors = new StringBuffer();
+public class PageEditTests extends BaseTest {
     private String updateString = "About Us Page Updated";
-
-    @Before
-    public void setUp() throws Exception {
-    	seleniumProperties.load(PageEditTests.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
-
-    	desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setJavascriptEnabled(true);
-        desiredCapabilities.setCapability("takesScreenshot", true);
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
-        		                             seleniumProperties.getProperty("craftercms.phantomjs.path"));
-        driver = new PhantomJSDriver(desiredCapabilities);
-    }
 
     /**
      * Test Page Save and Close Functionality
@@ -174,14 +148,5 @@ public class PageEditTests {
 
         assertTrue(driver.getTitle().equals("Crafter Studio"));
         assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.preview.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit"), updateString));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        CStudioSeleniumUtil.exit(driver);
-        String verificationErrorString = verificationErrors.toString();
-        if (!"".equals(verificationErrorString)) {
-            fail(verificationErrorString);
-        }
     }
 }

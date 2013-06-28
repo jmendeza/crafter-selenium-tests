@@ -5,59 +5,28 @@ package org.craftercms.web.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import org.craftercms.web.CStudioSeleniumUtil;
-import org.junit.After;
+import org.craftercms.web.WidgetBaseTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
-
-import com.thoughtworks.selenium.Selenium;
 
 /**
  * @author Praveen C Elineni
  *
  */
-public class InputTest {
+public class InputTest extends WidgetBaseTest {
     private static final Logger logger = Logger.getLogger("InputTest.class");
 
-	private final static String SELENIUM_PROPERTIES = "selenium.properties";
-    protected Selenium selenium;
-    protected WebDriver driver;
-    protected static DesiredCapabilities desiredCapabilities;
-    protected Properties seleniumProperties = new Properties();
-    private StringBuffer verificationErrors = new StringBuffer();
     private String validationString;
     private final static String updateString = "Update Value";
     private final static String updateMaxString = "01234567890123456789012345678901234567890123fifty0123456789012345678901234567890123456789012hundred";
 
     @Before
     public void setUp() throws Exception {
-    	seleniumProperties.load(InputTest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
-
-    	desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setJavascriptEnabled(true);
-        desiredCapabilities.setCapability("takesScreenshot", true);
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
-        		                             seleniumProperties.getProperty("craftercms.phantomjs.path"));
-        driver = new PhantomJSDriver(desiredCapabilities);
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-
-    	CStudioSeleniumUtil.loginAndEditPage(driver,
-									seleniumProperties.getProperty("craftercms.admin.username"), 
-									seleniumProperties.getProperty("craftercms.admin.password"),
-									seleniumProperties.getProperty("craftercms.input.widget.edit.page"), 
-									seleniumProperties.getProperty("craftercms.input.widget.content.type"), 
-									seleniumProperties.getProperty("craftercms.sitename"));
+    	super.setUp("craftercms.input.widget.edit.page", "craftercms.input.widget.content.type");
     }
     
     @Test
@@ -124,15 +93,6 @@ public class InputTest {
         String inputCount = driver.findElement(By.cssSelector("#input-count .char-count")).getText();
         if (inputValue != null && inputCount != null && inputCount.indexOf(" / ") != -1) {
         	assertEquals(String.valueOf(inputValue.length()), inputCount.substring(inputCount.indexOf(" / ") + 3));
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        CStudioSeleniumUtil.exit(driver);
-        String verificationErrorString = verificationErrors.toString();
-        if (!"".equals(verificationErrorString)) {
-            fail(verificationErrorString);
         }
     }
 }

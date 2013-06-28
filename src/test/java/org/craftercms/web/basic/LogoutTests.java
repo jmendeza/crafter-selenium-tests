@@ -3,51 +3,22 @@
  */
 package org.craftercms.web.basic;
 
-import static org.junit.Assert.fail;
-
-import java.util.Properties;
-
+import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
-
-import com.thoughtworks.selenium.Selenium;
 
 /**
  * @author Praveen C Elineni
  *
  */
-public class LogoutTests {
-    private final static String SELENIUM_PROPERTIES = "selenium.properties";
-    protected Selenium selenium;
-    protected WebDriver driver;
-    protected static DesiredCapabilities desiredCapabilities;
-    protected Properties seleniumProperties = new Properties();
-    private StringBuffer verificationErrors = new StringBuffer();
-
-    @Before
-    public void setUp() throws Exception {
-    	seleniumProperties.load(LogoutTests.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
-
-    	desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setJavascriptEnabled(true);
-        desiredCapabilities.setCapability("takesScreenshot", true);
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
-        		                             seleniumProperties.getProperty("craftercms.phantomjs.path"));
-        driver = new PhantomJSDriver(desiredCapabilities);
-    }
-
+public class LogoutTests extends BaseTest {
     /**
      * Test Logout Functinality
      */
     @Test
     public void testLogout() {
-    	String url = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
+    	String url = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), 
+    									seleniumProperties.getProperty("craftercms.sitename"));
 
     	CStudioSeleniumUtil.tryLogin(driver,
                                           seleniumProperties.getProperty("craftercms.admin.username"), 
@@ -57,14 +28,5 @@ public class LogoutTests {
         CStudioSeleniumUtil.navigateToUrl(driver, seleniumProperties.getProperty("craftercms.sitename"), url);
 
         CStudioSeleniumUtil.tryLogout(driver);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        CStudioSeleniumUtil.exit(driver);
-        String verificationErrorString = verificationErrors.toString();
-        if (!"".equals(verificationErrorString)) {
-            fail(verificationErrorString);
-        }
     }
 }

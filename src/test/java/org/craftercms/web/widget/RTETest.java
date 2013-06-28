@@ -5,58 +5,29 @@ package org.craftercms.web.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
-import org.craftercms.web.CStudioSeleniumUtil;
-import org.junit.After;
+import org.craftercms.web.WidgetBaseTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
-
-import com.thoughtworks.selenium.Selenium;
 
 /**
  * @author Praveen C Elineni
  *
  */
-public class RTETest {
-    private static final Logger logger = Logger.getLogger("RTETest.class");
+public class RTETest extends WidgetBaseTest {
+	// TODO: Cleanup test cases after phantomJS research with tinyMCE / iframes
 
-	private final static String SELENIUM_PROPERTIES = "selenium.properties";
-    protected Selenium selenium;
-    protected WebDriver driver;
-    protected static DesiredCapabilities desiredCapabilities;
-    protected Properties seleniumProperties = new Properties();
-    private StringBuffer verificationErrors = new StringBuffer();
+	private static final Logger logger = Logger.getLogger("RTETest.class");
+
     private String validationString;
 
     @Before
     public void setUp() throws Exception {
-    	seleniumProperties.load(RTETest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
-
-    	desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setJavascriptEnabled(true);
-        desiredCapabilities.setCapability("takesScreenshot", true);
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
-        		                             seleniumProperties.getProperty("craftercms.phantomjs.path"));
-        driver = new FirefoxDriver(desiredCapabilities);
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-
-    	CStudioSeleniumUtil.loginAndEditPage(driver,
-									seleniumProperties.getProperty("craftercms.admin.username"), 
-									seleniumProperties.getProperty("craftercms.admin.password"),
-									seleniumProperties.getProperty("craftercms.rte.widget.edit.page"), 
-									seleniumProperties.getProperty("craftercms.rte.widget.content.type"), 
-									seleniumProperties.getProperty("craftercms.sitename"));
+    	super.setUp("craftercms.rte.widget.edit.page", "craftercms.rte.widget.content.type");
     }
 
     @Test
@@ -100,14 +71,5 @@ public class RTETest {
     	logger.info("Widget Max Length");
     	String inputText = driver.findElement(By.cssSelector("#rte-max-length .datum")).getAttribute("value");
     	assertTrue(inputText.length() == 10);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        CStudioSeleniumUtil.exit(driver);
-        String verificationErrorString = verificationErrors.toString();
-        if (!"".equals(verificationErrorString)) {
-            fail(verificationErrorString);
-        }
     }
 }

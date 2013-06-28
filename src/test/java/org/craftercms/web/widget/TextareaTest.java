@@ -5,59 +5,28 @@ package org.craftercms.web.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import org.craftercms.web.CStudioSeleniumUtil;
-import org.junit.After;
+import org.craftercms.web.WidgetBaseTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
-
-import com.thoughtworks.selenium.Selenium;
 
 /**
  * @author Praveen C Elineni
  *
  */
-public class TextareaTest {
+public class TextareaTest extends WidgetBaseTest {
     private static final Logger logger = Logger.getLogger("TextareaTest.class");
 
-	private final static String SELENIUM_PROPERTIES = "selenium.properties";
-    protected Selenium selenium;
-    protected WebDriver driver;
-    protected static DesiredCapabilities desiredCapabilities;
-    protected Properties seleniumProperties = new Properties();
-    private StringBuffer verificationErrors = new StringBuffer();
     private String validationString;
     private final static String updateString = "Update Value";
     private final static String updateMaxString = "01234567890123456789012345678901234567890123fifty0123456789012345678901234567890123456789012hundred";
 
     @Before
     public void setUp() throws Exception {
-    	seleniumProperties.load(TextareaTest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
-
-    	desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setJavascriptEnabled(true);
-        desiredCapabilities.setCapability("takesScreenshot", true);
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
-        		                             seleniumProperties.getProperty("craftercms.phantomjs.path"));
-        driver = new PhantomJSDriver(desiredCapabilities);
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-
-    	CStudioSeleniumUtil.loginAndEditPage(driver,
-    									seleniumProperties.getProperty("craftercms.admin.username"), 
-    									seleniumProperties.getProperty("craftercms.admin.password"),
-    									seleniumProperties.getProperty("craftercms.textarea.widget.edit.page"), 
-   										seleniumProperties.getProperty("craftercms.textarea.widget.content.type"), 
-										seleniumProperties.getProperty("craftercms.sitename"));
+    	super.setUp("craftercms.textarea.widget.edit.page", "craftercms.textarea.widget.content.type");
     }
 
     @Test
@@ -136,14 +105,5 @@ public class TextareaTest {
     	
     	assertEquals(rows, "10");
     	assertEquals(cols, "40");
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        CStudioSeleniumUtil.exit(driver);
-        String verificationErrorString = verificationErrors.toString();
-        if (!"".equals(verificationErrorString)) {
-            fail(verificationErrorString);
-        }
     }
 }

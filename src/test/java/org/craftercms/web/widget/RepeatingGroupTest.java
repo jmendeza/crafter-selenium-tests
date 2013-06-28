@@ -5,58 +5,29 @@ package org.craftercms.web.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import org.craftercms.web.WidgetBaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
-
-import com.thoughtworks.selenium.Selenium;
 
 /**
  * @author Praveen C Elineni
  *
  */
-public class RepeatingGroupTest {
-    private static final Logger logger = Logger.getLogger("RepeatingGroupTest.class");
+public class RepeatingGroupTest extends WidgetBaseTest {	
+	// TODO: Cleanup test cases after id's attached to widget
 
-	private final static String SELENIUM_PROPERTIES = "selenium.properties";
-    protected Selenium selenium;
-    protected WebDriver driver;
-    protected static DesiredCapabilities desiredCapabilities;
-    protected Properties seleniumProperties = new Properties();
-    private StringBuffer verificationErrors = new StringBuffer();
+	private static final Logger logger = Logger.getLogger("RepeatingGroupTest.class");
 
     @Before
     public void setUp() throws Exception {
-    	seleniumProperties.load(RepeatingGroupTest.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
-
-    	desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setJavascriptEnabled(true);
-        desiredCapabilities.setCapability("takesScreenshot", true);
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
-        		                             seleniumProperties.getProperty("craftercms.phantomjs.path"));
-        driver = new PhantomJSDriver(desiredCapabilities);
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-
-    	CStudioSeleniumUtil.loginAndEditPage(driver, 
-    									seleniumProperties.getProperty("craftercms.admin.username"), 
-    									seleniumProperties.getProperty("craftercms.admin.password"),
-    									seleniumProperties.getProperty("craftercms.repeatgroup.widget.edit.page"), 
-   										seleniumProperties.getProperty("craftercms.repeatgroup.widget.content.type"), 
-										seleniumProperties.getProperty("craftercms.sitename"));
+    	super.setUp("craftercms.repeatgroup.widget.edit.page", "craftercms.repeatgroup.widget.content.type");
     }
 
     @Test
@@ -154,14 +125,5 @@ public class RepeatingGroupTest {
     	initialCount ++;
 
     	assertTrue(driver.findElement(By.xpath("//a[text()='Add Another']")).getAttribute("class").contains("cstudio-form-repeat-control-disabled"));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        CStudioSeleniumUtil.exit(driver);
-        String verificationErrorString = verificationErrors.toString();
-        if (!"".equals(verificationErrorString)) {
-            fail(verificationErrorString);
-        }
     }
 }
