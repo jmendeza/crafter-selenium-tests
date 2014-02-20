@@ -1,5 +1,7 @@
 Setup Crafter Studio
 	Create website with corporate blueprint
+	Create author user
+	Add author user to created site with 'Collaborator' Role
 Install PhantomJS Stack
 	Location: http://phantomjs.org/
 Clone crafter-selenium-tests project from github
