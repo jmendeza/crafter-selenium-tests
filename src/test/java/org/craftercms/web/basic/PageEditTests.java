@@ -12,7 +12,9 @@ import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -38,8 +40,10 @@ public class PageEditTests extends BaseTest {
                 seleniumProperties.getProperty("craftercms.admin.password"),
                 true);
 
+        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
+
         // Navigate to Dashboard page
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        driver.navigate().to(dashboardUrl);
 
         // Execute JS before Edit Page
         CStudioSeleniumUtil.editPageJS(driver, seleniumProperties.getProperty("craftercms.page.to.edit"), 
@@ -79,7 +83,8 @@ public class PageEditTests extends BaseTest {
         for (String h : handles) {
           driver.switchTo().window(h);
         }
-        
+
+        driver.navigate().to(dashboardUrl);
         assertTrue(driver.getTitle().equals("Crafter Studio"));
 
         // check my-recent-activity widget
@@ -107,8 +112,10 @@ public class PageEditTests extends BaseTest {
                 seleniumProperties.getProperty("craftercms.admin.password"),
                 true);
 
+        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
+
         // Navigate to Dashboard page
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        driver.navigate().to(dashboardUrl);
 
         // Execute JS before Edit Page
         CStudioSeleniumUtil.editPageJS(driver, seleniumProperties.getProperty("craftercms.page.to.edit"), 

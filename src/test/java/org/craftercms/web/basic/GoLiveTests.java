@@ -13,7 +13,9 @@ import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -43,12 +45,15 @@ public class GoLiveTests extends BaseTest {
                 seleniumProperties.getProperty("craftercms.admin.password"),
                 true);
 
+        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
+
         // Navigate to Dashboard page
         logger.info("navigate to dashboard");
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        driver.navigate().to(dashboardUrl);
 
         editAndSaveUtil(seleniumProperties.getProperty("craftercms.page.to.edit"), updateString);
 
+        driver.navigate().to(dashboardUrl);
         // check my-recent-activity widget
         logger.info("Check my-recent activity widget");
         new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
@@ -118,15 +123,18 @@ public class GoLiveTests extends BaseTest {
                 seleniumProperties.getProperty("craftercms.admin.password"),
                 true);
 
+        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
+
         // Navigate to Dashboard page
         logger.info("navigate to dashboard");
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        driver.navigate().to(dashboardUrl);
 
         // Execute JS before Edit Page
         editAndSaveUtil(seleniumProperties.getProperty("craftercms.page.to.edit"), updateString);
         editAndSaveUtil(seleniumProperties.getProperty("craftercms.page.to.edit1"), updateString1);
         Thread.sleep(5000);
 
+        driver.navigate().to(dashboardUrl);
         // select and check the updated item
         logger.info("Check item and push it to go-live");
         CStudioSeleniumUtil.clickOn(driver, By.id("MyRecentActivity-" + seleniumProperties.getProperty("craftercms.page.to.edit1")));
@@ -138,6 +146,9 @@ public class GoLiveTests extends BaseTest {
         logger.info("Select Go Live Now");
         CStudioSeleniumUtil.clickOn(driver, By.xpath("//a[text()='Go Live Now']"));
         Thread.sleep(10000);
+
+        // Select "go live now" radio button
+        CStudioSeleniumUtil.clickOn(driver, By.id("globalSetToNow"));
 
         // confirm submission on dialog
         logger.info("Confirm Go Live Now");
@@ -172,59 +183,5 @@ public class GoLiveTests extends BaseTest {
         logger.info("open file in live folder and check content exists");
         assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit"), updateString));
         assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit1"), updateString1));
-    }
-
-    /*
-     * Helper utility for code re-use
-     */
-    private void editAndSaveUtil(String editPage, String editString) {
-        // Execute JS before Edit Page
-        logger.info("edit page");
-        CStudioSeleniumUtil.editPageJS(driver, editPage, 
-				seleniumProperties.getProperty("craftercms.page.content.type"), 
-				seleniumProperties.getProperty("craftercms.sitename"));
-
-        // Wait for the window to load
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
-          public Boolean apply(WebDriver d) {
-            return d.getWindowHandles().size() > 1;
-          }
-        });
-
-        // Switch to edit window
-        Set<String> handles = driver.getWindowHandles();
-        for (String h : handles) {
-          driver.switchTo().window(h);
-          if (driver.getCurrentUrl().contains("cstudio-form"))
-        	  break;
-        }
-
-        // Find internal-name field and edit
-        driver.findElement(By.cssSelector("#internal-name .datum")).clear();
-        driver.findElement(By.cssSelector("#internal-name .datum")).sendKeys(editString);
-
-        // Click Save&Close button and wait for change to complete
-        logger.info("save and close form");
-        try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-        driver.findElement(By.id("cstudioSaveAndClose")).click();
-
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
-          public Boolean apply(WebDriver d) {
-            return (d.getWindowHandles().size() == 1);
-          }
-        });
-
-        // Navigate back to dashboard page and switch window
-        logger.info("Navigate back to dashboard");
-        handles = driver.getWindowHandles();
-        for (String h : handles) {
-          driver.switchTo().window(h);
-        }
-
-        assertTrue(driver.getTitle().equals("Crafter Studio"));
     }
 }

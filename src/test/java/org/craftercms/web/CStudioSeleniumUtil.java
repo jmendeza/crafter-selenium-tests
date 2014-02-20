@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -49,10 +46,12 @@ public class CStudioSeleniumUtil {
         driver.get(seleniumProperties.getProperty("craftercms.login.page.url"));
 
         WebElement element = driver.findElement(By.name("username"));
+        waitForItemToBeEnabled(driver, 30, By.name("username"));
+        waitForItemToDisplay(driver, 30, By.name("username"));
         element.sendKeys(userName);
         element = driver.findElement(By.name("password"));
         element.sendKeys(password);
-        element = driver.findElement(By.id("btn-login"));
+        element = driver.findElement(By.id("page_x002e_components_x002e_slingshot-login_x0023_default-submit-button"));
         element.click();
 
         assertEquals(driver.getCurrentUrl().equals(String.format(seleniumProperties.getProperty("craftercms.user.dashboard.url"), userName)), expected);
@@ -65,6 +64,7 @@ public class CStudioSeleniumUtil {
 	 */
     public static void tryLogout(WebDriver driver) {
         WebElement element = driver.findElement(By.id("acn-logout-link"));
+        driver.manage().window().maximize();
         element.click();
     }
 
@@ -102,6 +102,13 @@ public class CStudioSeleniumUtil {
         	            "}" +
         	            "}" +
         	            ");");
+
+        // Cancel schedule to edit, when needed
+        try {
+            WebElement continueButton = driver.findElement(By.cssSelector(".cancel-workflow-view button.continue"));
+            continueButton.click();
+        } catch (NoSuchElementException ex) {
+        }
     }
 
     /**
@@ -200,6 +207,54 @@ public class CStudioSeleniumUtil {
           if (driver.getCurrentUrl().contains("cstudio-form"))
         	  break;
         }
+    }
+
+    public static void editAndSavePage(WebDriver driver, String editPage, String editString) {
+        // Execute JS before Edit Page
+        CStudioSeleniumUtil.editPageJS(driver, editPage,
+                seleniumProperties.getProperty("craftercms.page.content.type"),
+                seleniumProperties.getProperty("craftercms.sitename"));
+
+        // Wait for the window to load
+        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver d) {
+                return d.getWindowHandles().size() > 1;
+            }
+        });
+
+        // Switch to edit window
+        Set<String> handles = driver.getWindowHandles();
+        for (String h : handles) {
+            driver.switchTo().window(h);
+            if (driver.getCurrentUrl().contains("cstudio-form"))
+                break;
+        }
+
+        // Find internal-name field and edit
+        driver.findElement(By.cssSelector("#internal-name .datum")).clear();
+        driver.findElement(By.cssSelector("#internal-name .datum")).sendKeys(editString);
+
+        // Click Save&Close button and wait for change to complete
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        driver.findElement(By.id("cstudioSaveAndClose")).click();
+
+        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver d) {
+                return (d.getWindowHandles().size() == 1);
+            }
+        });
+
+        // Navigate back to dashboard page and switch window
+        handles = driver.getWindowHandles();
+        for (String h : handles) {
+            driver.switchTo().window(h);
+        }
+
+        assertTrue(driver.getTitle().equals("Crafter Studio"));
     }
 
     /**
