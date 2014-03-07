@@ -1,11 +1,6 @@
 package org.craftercms.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-
+import com.thoughtworks.selenium.Selenium;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.rules.TestWatcher;
@@ -17,7 +12,11 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import com.thoughtworks.selenium.Selenium;
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class WidgetBaseTest extends TestWatcher {
 

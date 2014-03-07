@@ -13,19 +13,16 @@ import org.junit.Test;
  */
 public class LogoutTests extends BaseTest {
     /**
-     * Test Logout Functinality
+     * Test Logout Functionality
      */
     @Test
     public void testLogout() {
-    	String url = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), 
-    									seleniumProperties.getProperty("craftercms.sitename"));
-
     	CStudioSeleniumUtil.tryLogin(driver,
                                           seleniumProperties.getProperty("craftercms.admin.username"), 
                                           seleniumProperties.getProperty("craftercms.admin.password"),
                                            true);
 
-        CStudioSeleniumUtil.navigateToUrl(driver, seleniumProperties.getProperty("craftercms.sitename"), url);
+        CStudioSeleniumUtil.navigateToUrl(driver, siteName, dashboardUrl);
 
         CStudioSeleniumUtil.tryLogout(driver);
     }

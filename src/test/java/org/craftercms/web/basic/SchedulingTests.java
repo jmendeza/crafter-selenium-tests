@@ -3,21 +3,17 @@
  */
 package org.craftercms.web.basic;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-
 import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * @author Praveen C Elineni
@@ -54,18 +50,13 @@ public class SchedulingTests extends BaseTest {
 
     	// Login
     	logger.info("Login using admin credentials");
-        CStudioSeleniumUtil.tryLogin(driver,
-                seleniumProperties.getProperty("craftercms.admin.username"),
-                seleniumProperties.getProperty("craftercms.admin.password"),
-                true);
+        login();
 
-
-        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
         // Navigate to Dashboard page
         logger.info("navigate to dashboard");
         driver.navigate().to(dashboardUrl);
 
-        editAndSaveUtil(item, updateString);
+        CStudioSeleniumUtil.editAndSavePage(driver, item, updateString);
 
         driver.navigate().to(dashboardUrl);
         // check my-recent-activity widget
@@ -75,8 +66,6 @@ public class SchedulingTests extends BaseTest {
               return d.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString);
             }
         });
-
-        assertTrue(driver.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString));
 
         driver.navigate().to(dashboardUrl);
         // select and check the updated item
@@ -122,11 +111,8 @@ public class SchedulingTests extends BaseTest {
 
         // Refresh dashboard by logout and login
         logger.info("refresh dashboard");
-        CStudioSeleniumUtil.tryLogout(driver);
-        CStudioSeleniumUtil.tryLogin(driver,
-                seleniumProperties.getProperty("craftercms.admin.username"),
-                seleniumProperties.getProperty("craftercms.admin.password"),
-                true);
+        logout();
+        login();
 
         // navigate to dashboard
         driver.navigate().to(dashboardUrl);
@@ -137,6 +123,5 @@ public class SchedulingTests extends BaseTest {
                 return d.findElement(By.id("approvedScheduledItems-body")).getText().contains(updateString);
             }
         });
-        assertTrue(driver.findElement(By.id("approvedScheduledItems-tbody")).getText().contains(updateString));
     }
 }

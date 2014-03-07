@@ -1,159 +1,140 @@
 /**
- * 
+ *
  */
 package org.craftercms.web.basic;
-
-import static org.junit.Assert.assertTrue;
-
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.junit.Test;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Praveen C Elineni
- *
  */
 public class PageEditTests extends BaseTest {
+
+    private static final Logger logger = Logger.getLogger("PageEditTests.class");
+
     private String updateString = "About Us Page Updated";
 
     /**
      * Test Page Save and Close Functionality
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
-    public void testPageEditSaveAndClose() throws InterruptedException {    	
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+    public void testPageEditSaveAndClose() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-    	// Login
-        CStudioSeleniumUtil.tryLogin(driver,
-                seleniumProperties.getProperty("craftercms.admin.username"), 
-                seleniumProperties.getProperty("craftercms.admin.password"),
-                true);
+        logger.info("Login as admin");
+        login();
 
-        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
-
-        // Navigate to Dashboard page
+        logger.info("Navigate to Dashboard page");
         driver.navigate().to(dashboardUrl);
 
-        // Execute JS before Edit Page
-        CStudioSeleniumUtil.editPageJS(driver, seleniumProperties.getProperty("craftercms.page.to.edit"), 
-        											seleniumProperties.getProperty("craftercms.page.content.type"), 
-        											seleniumProperties.getProperty("craftercms.sitename"));
+        logger.info("Edit page");
+        CStudioSeleniumUtil.editPageJS(driver, seleniumProperties.getProperty("craftercms.page.to.edit"),
+                seleniumProperties.getProperty("craftercms.page.content.type"),
+                siteName);
 
-        // Wait for the window to load
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
-          public Boolean apply(WebDriver d) {
-            return d.getWindowHandles().size() > 1;
-          }
-        });
+        CStudioSeleniumUtil.switchToEditWindow(driver);
 
-        // Switch to edit window
-        Set<String> handles = driver.getWindowHandles();
-        for (String h : handles) {
-          driver.switchTo().window(h);
-          if (driver.getCurrentUrl().contains("cstudio-form"))
-        	  break;
-        }
-
-        // Find internal-name field and edit
+        logger.info("Find internal-name field and edit");
         driver.findElement(By.cssSelector("#internal-name .datum")).clear();
         driver.findElement(By.cssSelector("#internal-name .datum")).sendKeys(updateString);
 
-        // Click Save&Close button and wait for change to complete
+        logger.info("Click Save&Close button and wait for change to complete");
         driver.findElement(By.id("cstudioSaveAndClose")).click();
 
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
-          public Boolean apply(WebDriver d) {
-            return (d.getWindowHandles().size() == 1);
-          }
-        });
+        CStudioSeleniumUtil.switchToMainWindow(driver);
 
-        // Navigate back to dashboard page and switch window
-        handles = driver.getWindowHandles();
-        for (String h : handles) {
-          driver.switchTo().window(h);
-        }
-
+        logger.info("Navigate back to dashboard");
         driver.navigate().to(dashboardUrl);
         assertTrue(driver.getTitle().equals("Crafter Studio"));
 
-        // check my-recent-activity widget
+        logger.info("Check my-recent-activity widget");
         new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
-              return d.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString);
+                return d.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString);
             }
-          });
-
-        assertTrue(driver.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString));
+        });
     }
 
     /**
-     * Test Page Save and Preview Functinality
-     * 
+     * Test Page Save and Preview Functionality
+     *
      * @throws InterruptedException
      */
     @Test
     public void testPageEditSaveAndPreview() throws InterruptedException {
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-    	// Login
-        CStudioSeleniumUtil.tryLogin(driver,
-                seleniumProperties.getProperty("craftercms.admin.username"), 
-                seleniumProperties.getProperty("craftercms.admin.password"),
-                true);
+        logger.info("Login as admin");
+        login();
 
-        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
+        String mainWindowHandle = driver.getWindowHandle();
 
-        // Navigate to Dashboard page
+        logger.info("Navigate to Dashboard page");
         driver.navigate().to(dashboardUrl);
 
-        // Execute JS before Edit Page
-        CStudioSeleniumUtil.editPageJS(driver, seleniumProperties.getProperty("craftercms.page.to.edit"), 
-        										seleniumProperties.getProperty("craftercms.page.content.type"), 
-        										seleniumProperties.getProperty("craftercms.sitename"));
+        logger.info("Edit page");
+        CStudioSeleniumUtil.editPageJS(driver, seleniumProperties.getProperty("craftercms.page.to.edit"),
+                seleniumProperties.getProperty("craftercms.page.content.type"),
+                siteName);
 
-        // Wait for the window to load
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
-          public Boolean apply(WebDriver d) {
-            return d.getWindowHandles().size() > 1;
-          }
+        CStudioSeleniumUtil.switchToEditWindow(driver);
+
+        String editWindowHandle = driver.getWindowHandle();
+
+        logger.info("Edit internal-name field");
+        WebElement internalNameElement = driver.findElement(By.cssSelector("#internal-name .datum"));
+        internalNameElement.clear();
+        internalNameElement.sendKeys(updateString);
+
+
+        logger.info("Click Save&Preview button and wait for change to complete");
+        driver.findElement(By.id("cstudioSaveAndPreview")).click();
+
+        logger.info("Switch back to first window");
+        driver.switchTo().window(mainWindowHandle);
+
+        logger.info("Wait for preview to load");
+        new WebDriverWait(driver, 30, 100).until(new ExpectedCondition<Boolean>() {
+            @Override
+            public Boolean apply(WebDriver webDriver) {
+                try {
+                    Alert alert = driver.switchTo().alert();
+                    alert.accept();
+                    return true;
+                } catch (Exception ex) {
+                    return false;
+                }
+            }
         });
 
-        // Switch to edit window
-        Set<String> handles = driver.getWindowHandles();
-        for (String h : handles) {
-          driver.switchTo().window(h);
-          if (driver.getCurrentUrl().contains("cstudio-form"))
-        	  break;
-        }
+        String pageUrl = seleniumProperties.getProperty("craftercms.base.url") + seleniumProperties.getProperty("craftercms.page.to.edit.url");
 
-        // Find internal-name field and edit
-        driver.findElement(By.cssSelector("#internal-name .datum")).clear();
-        driver.findElement(By.cssSelector("#internal-name .datum")).sendKeys(updateString);
-
-        // Click Save&Close button and wait for change to complete
-        driver.findElement(By.id("cstudioSaveAndPreview")).click();
-        Thread.sleep(30000);
-
-        // Navigate back to dashboard page and switch window
-        handles = driver.getWindowHandles();
-        for (String h : handles) {
-          driver.switchTo().window(h);
-          if (driver.getTitle().contains("Crafter Studio"))
-        	  break;
-        }
-
-        assertTrue(driver.getTitle().equals("Crafter Studio"));
+        logger.info("Check url match edited page url");
+        assertTrue(driver.getCurrentUrl().equals(pageUrl));
+        logger.info("Check item content has changed");
         assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.preview.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit"), updateString));
+
+        logger.info("Go back and close edit window so item is not locked");
+        driver.switchTo().window(editWindowHandle);
+        driver.findElement(By.cssSelector("input[value=\"Cancel\"]")).click();
+        List<WebElement> buttonConfirm = driver.findElements(By.xpath("//button[text()='Yes']"));
+        if (buttonConfirm.size() > 0)
+            buttonConfirm.get(0).click();
     }
 }

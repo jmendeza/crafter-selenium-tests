@@ -18,14 +18,12 @@ public class NavigateToPageTests extends BaseTest {
      */
     @Test
     public void testNavigateToDashboardPage() {
-    	String url = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
-
     	CStudioSeleniumUtil.tryLogin(driver,
                                           seleniumProperties.getProperty("craftercms.admin.username"), 
                                           seleniumProperties.getProperty("craftercms.admin.password"),
                                            true);
 
-    	CStudioSeleniumUtil.navigateToUrl(driver, seleniumProperties.getProperty("craftercms.sitename"), url);
+    	CStudioSeleniumUtil.navigateToUrl(driver, siteName, dashboardUrl);
     }
 
     /**
@@ -33,10 +31,8 @@ public class NavigateToPageTests extends BaseTest {
      */
     @Test
     public void testUnauthorizedAccess() {
-    	String url = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
-
     	CStudioSeleniumUtil.tryLogin(driver, "wronguser", "worngpassword", false);
 
-    	CStudioSeleniumUtil.navigateToUrl(driver, seleniumProperties.getProperty("craftercms.sitename"), url);
+    	CStudioSeleniumUtil.navigateToUrl(driver, siteName, dashboardUrl);
     }
 }

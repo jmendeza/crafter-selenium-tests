@@ -4,23 +4,25 @@ import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jonathan Méndez
  */
-public abstract class DashboardTestsBase extends BaseTest{
+public abstract class DashboardTestsBase extends BaseTest {
+
+    private static final Logger logger = Logger.getLogger("DashboardTestsBase.class");
 
     protected abstract String getUpdateString();
-    protected abstract String getUsername();
-    protected abstract String getPassword();
 
     /**
      * Test Dashboard Page Context Nav Functionality
@@ -29,28 +31,28 @@ public abstract class DashboardTestsBase extends BaseTest{
     public void testContextNav() {
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-        CStudioSeleniumUtil.tryLogin(driver,
-                getUsername(),
-                getPassword(),
-                true);
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        login();
+        driver.navigate().to(dashboardUrl);
 
+        logger.info("Wait for context navigation header to show");
         CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, By.id("authoringContextNavHeader"));
+
+        logger.info("Wait for logo link to show");
         CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, By.id("acn-wcm-logo-link"));
+
+        logger.info("Wait for dropdown toggler to show");
         CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, By.id("acn-dropdown-toggler"));
 
         WebElement element = driver.findElement(By.id("acn-dropdown-toggler"));
         assertTrue(element.getText().equals("Site Content"));
         element.click();
 
+        logger.info("Ensure dropdown displays when toggler is clicked");
         new WebDriverWait(driver, 30).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElement(By.id("acn-dropdown-menu-wrapper")).isDisplayed();
             }
         });
-
-        element = driver.findElement(By.id("acn-dropdown-menu-wrapper"));
-        assertTrue(element.isDisplayed());
     }
 
     /**
@@ -60,20 +62,17 @@ public abstract class DashboardTestsBase extends BaseTest{
     public void testSiteDashboardTitle() {
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-        CStudioSeleniumUtil.tryLogin(driver,
-                getUsername(),
-                getPassword(),
-                true);
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        login();
+        driver.navigate().to(dashboardUrl);
 
-        // check if title exists and match title with correct site value
+        logger.info("Check if title exists and match title with correct site value");
         WebElement element = driver.findElement(By.id("pageTitle"));
         assertTrue(element.getText().contains(seleniumProperties.getProperty("craftercms.sitetitle")));
         assertTrue(element.isDisplayed());
     }
 
     /**
-     * Test Dashboard Page My Recent Activity Functinality
+     * Test Dashboard Page My Recent Activity Functionality
      *
      * @throws InterruptedException
      */
@@ -81,24 +80,21 @@ public abstract class DashboardTestsBase extends BaseTest{
     public void testMyRecentActivity() throws InterruptedException {
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-        CStudioSeleniumUtil.tryLogin(driver,
-                getUsername(),
-                getPassword(),
-                true);
-        String dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename"));
+        login();
         driver.navigate().to(dashboardUrl);
 
-        editAndSaveUtil(seleniumProperties.getProperty("craftercms.page.to.edit"), getUpdateString());
+        logger.info("Edit and save page");
+        CStudioSeleniumUtil.editAndSavePage(driver, seleniumProperties.getProperty("craftercms.page.to.edit"), getUpdateString());
 
+        logger.info("Refresh dashboard");
         driver.navigate().to(dashboardUrl);
-        // check my-recent-activity widget
+
+        logger.info("Check my-recent-activity widget for edited page");
         new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElement(By.id("MyRecentActivity-body")).getText().contains(getUpdateString());
             }
         });
-        Thread.sleep(10000);
-        assertTrue(driver.findElement(By.id("MyRecentActivity-body")).getText().contains(getUpdateString()));
     }
 
     /**
@@ -108,14 +104,18 @@ public abstract class DashboardTestsBase extends BaseTest{
     public void testIconGuide() {
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-        CStudioSeleniumUtil.tryLogin(driver,
-                getUsername(),
-                getPassword(),
-                true);
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        login();
+        logger.info("Navigate to dashboard");
+        driver.navigate().to(dashboardUrl);
 
         WebElement element = driver.findElement(By.id("icon-guide"));
+        logger.info("Scroll down to reach icon-guide");
+        driver.manage().window().setPosition(new Point(0, driver.manage().window().getSize().height));
+
+        logger.info("Check icon-guide is displayed");
         assertTrue(element.isDisplayed());
+
+        logger.info("Check icon-guide text");
         assertTrue(element.getText().contains("Icon Guide"));
     }
 
@@ -126,14 +126,15 @@ public abstract class DashboardTestsBase extends BaseTest{
     public void testFooter() {
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-        CStudioSeleniumUtil.tryLogin(driver,
-                getUsername(),
-                getPassword(),
-                true);
-        driver.navigate().to(String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), seleniumProperties.getProperty("craftercms.sitename")));
+        login();
+        logger.info("Navigate to dashboard");
+        driver.navigate().to(dashboardUrl);
 
+        logger.info("Check footer exists");
         WebElement element = driver.findElement(By.id("footer"));
         assertTrue(element.isDisplayed());
+
+        logger.info("Check footer texts");
         assertTrue(element.getText().contains("Crafter Software"));
     }
 }

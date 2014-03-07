@@ -3,12 +3,11 @@
  */
 package org.craftercms.web.basic;
 
-import java.util.logging.Logger;
-
 import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.junit.Test;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
+
+import java.util.logging.Logger;
 
 /**
  * @author Praveen C Elineni
@@ -18,7 +17,7 @@ public class LoginTests extends BaseTest {
 	private static final Logger logger = Logger.getLogger("LoginTests.class");
     
     /**
-     * Test Login Functinality
+     * Test Login Functionality
      * 
      * @throws InterruptedException
      */
@@ -28,7 +27,7 @@ public class LoginTests extends BaseTest {
         CStudioSeleniumUtil.tryLogin(driver, "wronguser", "worngpassword", false);
         CStudioSeleniumUtil.exit(driver);
 
-        driver = new PhantomJSDriver(desiredCapabilities);
+        initializeDriver();
         logger.info("Logging using admin credentials");
         CStudioSeleniumUtil.tryLogin(driver,
                                         seleniumProperties.getProperty("craftercms.admin.username"), 
@@ -36,7 +35,7 @@ public class LoginTests extends BaseTest {
                                         true);
         CStudioSeleniumUtil.exit(driver);
 
-        driver = new PhantomJSDriver(desiredCapabilities);
+        initializeDriver();
         logger.info("Logging using author credentials");
         CStudioSeleniumUtil.tryLogin(driver,
                 seleniumProperties.getProperty("craftercms.author.username"), 

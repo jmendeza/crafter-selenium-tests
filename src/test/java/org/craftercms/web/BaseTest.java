@@ -1,27 +1,22 @@
 package org.craftercms.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.Set;
-import java.util.logging.Logger;
-
+import com.thoughtworks.selenium.Selenium;
 import org.apache.commons.io.FileUtils;
 import org.craftercms.web.basic.LoginTests;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.openqa.selenium.*;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import com.thoughtworks.selenium.Selenium;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import static org.junit.Assert.assertTrue;
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 public class BaseTest extends TestWatcher {
 
@@ -34,19 +29,26 @@ public class BaseTest extends TestWatcher {
     protected Selenium selenium;
     protected static DesiredCapabilities desiredCapabilities;
     protected Properties seleniumProperties = new Properties();
+    protected String dashboardUrl;
+    protected String siteName;
 
     @Before
     public void setUp() throws Exception {
     	seleniumProperties.load(LoginTests.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
 
-    	desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setJavascriptEnabled(true);
-        desiredCapabilities.setCapability("takesScreenshot", true);
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, 
-        		                             seleniumProperties.getProperty("phantomjs.install.path"));
-        driver = new PhantomJSDriver(desiredCapabilities);
+        initializeDriver();
         screenshotOutputFolder = seleniumProperties.getProperty("phantomjs.screenshot.folder.path");
         driver.manage().window().maximize();
+        siteName = seleniumProperties.getProperty("craftercms.sitename");
+        dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), siteName);
+    }
+
+    protected void initializeDriver() {
+        desiredCapabilities = new DesiredCapabilities();
+        desiredCapabilities.setJavascriptEnabled(true);
+        desiredCapabilities.setCapability("takesScreenshot", true);
+
+        driver = new ChromeDriver(desiredCapabilities);
     }
 
 	@Override
@@ -87,55 +89,24 @@ public class BaseTest extends TestWatcher {
 		this.driver = driver;
 	}
 
-    protected void editAndSaveUtil(String editPage, String editString) {
-        // Execute JS before Edit Page
-        logger.info("edit page");
-        CStudioSeleniumUtil.editPageJS(driver, editPage,
-                seleniumProperties.getProperty("craftercms.page.content.type"),
-                seleniumProperties.getProperty("craftercms.sitename"));
+    protected void login() {
+        logger.info("Login as " + getUsername());
+        CStudioSeleniumUtil.tryLogin(driver,
+                getUsername(),
+                getPassword(),
+                true);
+    }
 
-        // Wait for the window to load
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
-            public Boolean apply(WebDriver d) {
-                return d.getWindowHandles().size() > 1;
-            }
-        });
+    protected void logout () {
+        CStudioSeleniumUtil.tryLogout(driver);
+    }
 
-        // Switch to edit window
-        Set<String> handles = driver.getWindowHandles();
-        for (String h : handles) {
-            driver.switchTo().window(h);
-            if (driver.getCurrentUrl().contains("cstudio-form"))
-                break;
-        }
+    protected String getUsername() {
+        return seleniumProperties.getProperty("craftercms.admin.username");
+    }
 
-        // Find internal-name field and edit
-        driver.findElement(By.cssSelector("#internal-name .datum")).clear();
-        driver.findElement(By.cssSelector("#internal-name .datum")).sendKeys(editString);
-
-        // Click Save&Close button and wait for change to complete
-        logger.info("save and close form");
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        driver.findElement(By.id("cstudioSaveAndClose")).click();
-
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
-            public Boolean apply(WebDriver d) {
-                return (d.getWindowHandles().size() == 1);
-            }
-        });
-
-        // Navigate back to dashboard page and switch window
-        logger.info("Navigate back to dashboard");
-        handles = driver.getWindowHandles();
-        for (String h : handles) {
-            driver.switchTo().window(h);
-        }
-
-        assertTrue(driver.getTitle().equals("Crafter Studio"));
+    protected String getPassword() {
+        return seleniumProperties.getProperty("craftercms.admin.password");
     }
 
 }

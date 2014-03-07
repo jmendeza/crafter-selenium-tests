@@ -1,15 +1,15 @@
 package org.craftercms.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Logger;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 public class WebIntegrationTestRule extends TestWatcher {
 
