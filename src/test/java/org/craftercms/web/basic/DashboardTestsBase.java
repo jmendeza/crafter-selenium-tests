@@ -2,6 +2,7 @@ package org.craftercms.web.basic;
 
 import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Point;
@@ -29,26 +30,26 @@ public abstract class DashboardTestsBase extends BaseTest {
      */
     @Test
     public void testContextNav() {
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
         login();
         driver.navigate().to(dashboardUrl);
 
         logger.info("Wait for context navigation header to show");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, By.id("authoringContextNavHeader"));
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.id("authoringContextNavHeader"));
 
         logger.info("Wait for logo link to show");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, By.id("acn-wcm-logo-link"));
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.id("acn-wcm-logo-link"));
 
         logger.info("Wait for dropdown toggler to show");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, By.id("acn-dropdown-toggler"));
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.id("acn-dropdown-toggler"));
 
         WebElement element = driver.findElement(By.id("acn-dropdown-toggler"));
         assertTrue(element.getText().equals("Site Content"));
         element.click();
 
         logger.info("Ensure dropdown displays when toggler is clicked");
-        new WebDriverWait(driver, 30).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElement(By.id("acn-dropdown-menu-wrapper")).isDisplayed();
             }
@@ -60,7 +61,7 @@ public abstract class DashboardTestsBase extends BaseTest {
      */
     @Test
     public void testSiteDashboardTitle() {
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
         login();
         driver.navigate().to(dashboardUrl);
@@ -78,7 +79,7 @@ public abstract class DashboardTestsBase extends BaseTest {
      */
     @Test
     public void testMyRecentActivity() throws InterruptedException {
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
         login();
         driver.navigate().to(dashboardUrl);
@@ -90,7 +91,7 @@ public abstract class DashboardTestsBase extends BaseTest {
         driver.navigate().to(dashboardUrl);
 
         logger.info("Check my-recent-activity widget for edited page");
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElement(By.id("MyRecentActivity-body")).getText().contains(getUpdateString());
             }
@@ -102,7 +103,7 @@ public abstract class DashboardTestsBase extends BaseTest {
      */
     @Test
     public void testIconGuide() {
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
         login();
         logger.info("Navigate to dashboard");
@@ -124,7 +125,7 @@ public abstract class DashboardTestsBase extends BaseTest {
      */
     @Test
     public void testFooter() {
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
         login();
         logger.info("Navigate to dashboard");

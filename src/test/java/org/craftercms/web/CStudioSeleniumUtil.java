@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
@@ -25,6 +26,9 @@ import static org.junit.Assert.*;
  *
  */
 public class CStudioSeleniumUtil {
+    private static final Logger logger = Logger.getLogger("CStudioSeleniumUtil.class");
+
+
     private static Properties seleniumProperties = new Properties();
     static {
         try {
@@ -43,21 +47,33 @@ public class CStudioSeleniumUtil {
      * @param expected
      */
 	public static void tryLogin(WebDriver driver, String userName, String password, boolean expected) {
+        logger.info("Logging in");
         driver.get(seleniumProperties.getProperty("craftercms.login.page.url"));
+        CStudioSeleniumUtil.clickOn(driver, By.name("username"));
+        WebElement userNameElement = driver.findElement(By.name("username"));
+        userNameElement.clear();
+        userNameElement.sendKeys(userName);
+        CStudioSeleniumUtil.clickOn(driver, By.name("password"));
+        WebElement passwordElement = driver.findElement(By.name("password"));
+        passwordElement.clear();
+        passwordElement.sendKeys(password);
+        try {
+            Thread.sleep(1000);
+        } catch (Exception ex) {
+        }
+        logger.info("Username: '" + userNameElement.getAttribute("value") + "'");
+        logger.info("Password: '" + passwordElement.getAttribute("value") + "'");
+        WebElement submitButton = driver.findElement(By.id("page_x002e_components_x002e_slingshot-login_x0023_default-submit-button"));
+        submitButton.click();
 
-        waitForItemToBeEnabled(driver, 30, By.name("username"));
-        waitForItemToDisplay(driver, 30, By.name("username"));
-        WebElement element = driver.findElement(By.name("username"));
-        element.clear();
-        element.sendKeys(userName);
-        element = driver.findElement(By.name("password"));
-        element.clear();
-        element.sendKeys(password);
-        element = driver.findElement(By.id("page_x002e_components_x002e_slingshot-login_x0023_default-submit-button"));
-        element.click();
-
-        assertEquals(driver.getCurrentUrl().equals(String.format(seleniumProperties.getProperty("craftercms.user.dashboard.url"), userName)), expected);
-	}
+        String expectedUrl = String.format(seleniumProperties.getProperty("craftercms.user.dashboard.url"), userName);
+        // Assert was rewritten this way so we can see both strings in tests log
+        if (expected) {
+            assertEquals(expectedUrl, driver.getCurrentUrl());
+        } else {
+            assertNotEquals(expectedUrl, driver.getCurrentUrl());
+        }
+    }
 
 	/**
 	 * Logout of crafter Studio
@@ -67,7 +83,7 @@ public class CStudioSeleniumUtil {
     public static void tryLogout(WebDriver driver) {
         driver.manage().window().maximize();
         By by = By.id("acn-logout-link");
-        waitForItemToDisplay(driver, 30, by);
+        waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, by);
         WebElement element = driver.findElement(by);
         element.click();
     }
@@ -180,8 +196,8 @@ public class CStudioSeleniumUtil {
      * @param by
      */
     public static void clickOn(WebDriver driver, By by) {
-    	waitForItemToDisplay(driver, 30, by);
-    	waitForItemToBeEnabled(driver, 30, by);
+    	waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, by);
+    	waitForItemToBeEnabled(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, by);
         driver.findElement(by).click();
     }
 
@@ -266,7 +282,7 @@ public class CStudioSeleniumUtil {
      */
     public static void switchToEditWindow(WebDriver driver) {
         // Wait for the window to load
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.getWindowHandles().size() > 1;
             }
@@ -287,7 +303,7 @@ public class CStudioSeleniumUtil {
      * @param driver
      */
     public static void switchToMainWindow(WebDriver driver) {
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return (d.getWindowHandles().size() == 1);
             }
@@ -310,7 +326,7 @@ public class CStudioSeleniumUtil {
 
         // Find internal-name field and edit
         By internalNameBy = By.cssSelector("#internal-name .datum");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, internalNameBy);
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, internalNameBy);
         WebElement internalNameElement = driver.findElement(internalNameBy);
         internalNameElement.clear();
         internalNameElement.sendKeys(editString);
@@ -341,7 +357,7 @@ public class CStudioSeleniumUtil {
         setField(driver, "div#title .datum", title);
         setField(driver, "div#author .datum", "Crafter CMS");
 
-        waitForItemToDisplay(driver, 30, By.tagName("iframe"));
+        waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.tagName("iframe"));
 
         // Put text in article main content
         JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -354,8 +370,8 @@ public class CStudioSeleniumUtil {
     }
 
     private static void setField(WebDriver driver, String selector, String value) {
-        waitForItemToDisplay(driver, 30, By.cssSelector(selector));
-        waitForItemToBeEnabled(driver, 30, By.cssSelector(selector));
+        waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.cssSelector(selector));
+        waitForItemToBeEnabled(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.cssSelector(selector));
         WebElement element = driver.findElement(By.cssSelector(selector));
         element.sendKeys(value);
     }
@@ -363,14 +379,14 @@ public class CStudioSeleniumUtil {
     public static void createFolder(WebDriver driver, String folderName, String path, String siteName) {
         createFolderJS(driver, path, siteName);
 
-        waitForItemToDisplay(driver, 30, By.id("folderNameId"));
+        waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.id("folderNameId"));
 
         WebElement folderNameField = driver.findElement(By.id("folderNameId"));
         folderNameField.sendKeys(folderName);
 
         driver.findElement(By.id("createButton")).click();
 
-        new WebDriverWait(driver, 30).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElements(By.id("createButton")).size() == 0;
             }
@@ -398,27 +414,28 @@ public class CStudioSeleniumUtil {
 
     public static void contextMenuOptionPage(WebDriver driver, String itemTitle, String option) throws InterruptedException {
         WebElement pageItem = getPageTreeItem(driver, itemTitle);
-        assertNotNull(pageItem);
 
         contextMenuOption(driver, option, pageItem);
     }
 
     public static void contextMenuOptionComponent(WebDriver driver, String itemTitle, String option) throws InterruptedException {
         WebElement componentItem = getComponentTreeItem(driver, itemTitle);
-        assertNotNull(componentItem);
 
         contextMenuOption(driver, option, componentItem);
     }
 
     private static void contextMenuOption(WebDriver driver, String option, WebElement articleItem) {
+        final By menuItemsBy = By.cssSelector("#ContextmenuWrapper0 li.yuimenuitem a");
         new Actions(driver).contextClick(articleItem).perform();
-        new WebDriverWait(driver, 30).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
-                return d.findElements(By.cssSelector("#ContextmenuWrapper0 li.yuimenuitem a")).size() > 0;
+                return d.findElements(menuItemsBy).size() > 0;
             }
         });
+        new Actions(driver).moveToElement(driver.findElement(menuItemsBy)).build().perform();
         boolean optionFound = false;
-        List<WebElement> menuItems = driver.findElements(By.cssSelector("#ContextmenuWrapper0 li.yuimenuitem a"));
+        List<WebElement> menuItems = driver.findElements(menuItemsBy);
+        assertTrue(menuItems.size() > 0);
         for (WebElement menuItem : menuItems) {
             if (menuItem.getAttribute("innerHTML").equals(option)) {
                 menuItem.click();
@@ -441,7 +458,7 @@ public class CStudioSeleniumUtil {
             By togglerBy = By.id("acn-dropdown-toggler");
             CStudioSeleniumUtil.clickOn(driver, togglerBy);
 
-            new WebDriverWait(driver, 30).until(new ExpectedCondition<Boolean>() {
+            new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
                 public Boolean apply(WebDriver d) {
                     return d.findElement(dropDownMenuElementBy).isDisplayed();
                 }
@@ -453,7 +470,7 @@ public class CStudioSeleniumUtil {
     public static void ensurePagesTreeIsExpanded(WebDriver driver) throws InterruptedException {
         ensureDropDownIsVisible(driver);
 
-        By homePageBy = By.xpath("//span[contains(.,'Home')]");
+        By homePageBy = By.xpath("//div[@id='acn-dropdown-menu-wrapper']//span[contains(.,'Home')]");
         List<WebElement> pagesTreeRoot = driver.findElements(homePageBy);
         boolean needToExpand = true;
         if (pagesTreeRoot.size() > 0) {
@@ -463,7 +480,7 @@ public class CStudioSeleniumUtil {
         }
         if (needToExpand) {
             clickOn(driver, By.id("pages-tree"));
-            waitForItemToDisplay(driver, 30, homePageBy);
+            waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, homePageBy);
         }
 
         final WebElement homeTableElement = driver.findElement(By.xpath("//span[contains(.,'Home')]/ancestor::table"));
@@ -472,19 +489,19 @@ public class CStudioSeleniumUtil {
 
         if (needToExpand) {
             homeTableElement.findElement(By.cssSelector("a.ygtvspacer")).click();
-            new WebDriverWait(driver, 10).until(new ExpectedCondition<Boolean>() {
+            new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
                 public Boolean apply(WebDriver d) {
                     return !homeTableElement.getAttribute("class").contains("collapsed");
                 }
             });
-            Thread.sleep(2000);
         }
+        Thread.sleep(2000);
     }
 
     public static void ensureComponentsTreeIsExpanded(WebDriver driver) throws InterruptedException {
         ensureDropDownIsVisible(driver);
 
-        By componentsTreeRootBy = By.xpath("//span[contains(.,'components')]");
+        By componentsTreeRootBy = By.xpath("//div[@id='acn-dropdown-menu-wrapper']//span[contains(.,'components')]");
         List<WebElement> componentsTreeRoot = driver.findElements(componentsTreeRootBy);
         boolean needToExpand = true;
         if (componentsTreeRoot.size() > 0) {
@@ -495,7 +512,7 @@ public class CStudioSeleniumUtil {
         if (needToExpand) {
             Thread.sleep(1000);
             clickOn(driver, By.id("components-tree"));
-            waitForItemToDisplay(driver, 30, componentsTreeRootBy);
+            waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, componentsTreeRootBy);
         }
 
         By toutsFolderBy = By.xpath("//span[contains(.,'touts')]");
@@ -508,20 +525,20 @@ public class CStudioSeleniumUtil {
         }
         if (needToExpand) {
             clickOn(driver, componentsTreeRootBy);
-            waitForItemToDisplay(driver, 10, toutsFolderBy);
+            waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, toutsFolderBy);
         }
         final WebElement toutsTableElement = driver.findElement(By.xpath("//span[contains(.,'touts')]/ancestor::table"));
         String toutsClass = toutsTableElement.getAttribute("class");
         needToExpand = toutsClass.contains("collapsed");
         if (needToExpand) {
             clickOn(driver, toutsFolderBy);
-            new WebDriverWait(driver, 10).until(new ExpectedCondition<Boolean>() {
+            new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
                 public Boolean apply(WebDriver d) {
                     return !toutsTableElement.getAttribute("class").contains("collapsed");
                 }
             });
-            Thread.sleep(2000);
         }
+        Thread.sleep(2000);
     }
 
     public static boolean checkItemIsInPageTree(WebDriver driver, String itemName) throws InterruptedException {
@@ -548,6 +565,7 @@ public class CStudioSeleniumUtil {
                 break;
             }
         }
+        assertNotNull("Couldn't find element with name: '" + itemName + "'", result);
         return result;
     }
 

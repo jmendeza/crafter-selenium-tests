@@ -5,6 +5,7 @@ package org.craftercms.web.basic;
 
 import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -35,7 +36,7 @@ public class PageEditTests extends BaseTest {
      */
     @Test
     public void testPageEditSaveAndClose() throws InterruptedException {
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
         logger.info("Login as admin");
         login();
@@ -64,7 +65,7 @@ public class PageEditTests extends BaseTest {
         assertTrue(driver.getTitle().equals("Crafter Studio"));
 
         logger.info("Check my-recent-activity widget");
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString);
             }
@@ -78,7 +79,7 @@ public class PageEditTests extends BaseTest {
      */
     @Test
     public void testPageEditSaveAndPreview() throws InterruptedException {
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
         logger.info("Login as admin");
         login();
@@ -101,7 +102,7 @@ public class PageEditTests extends BaseTest {
         WebElement internalNameElement = driver.findElement(By.cssSelector("#internal-name .datum"));
         internalNameElement.clear();
         internalNameElement.sendKeys(updateString);
-
+        Thread.sleep(1000);
 
         logger.info("Click Save&Preview button and wait for change to complete");
         driver.findElement(By.id("cstudioSaveAndPreview")).click();
@@ -110,7 +111,7 @@ public class PageEditTests extends BaseTest {
         driver.switchTo().window(mainWindowHandle);
 
         logger.info("Wait for preview to load");
-        new WebDriverWait(driver, 30, 100).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, 30).until(new ExpectedCondition<Boolean>() {
             @Override
             public Boolean apply(WebDriver webDriver) {
                 try {

@@ -3,6 +3,7 @@ package org.craftercms.web.editing;
 import com.google.common.base.Predicate;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.craftercms.web.EditingTest;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.support.ui.FluentWait;
 
@@ -137,7 +138,7 @@ public class CopyCutPasteTests extends EditingTest {
     private void checkItemFileExists(String copyFilePath, final boolean expected) {
         File copy = new File(copyFilePath);
         logger.info("Wait for item to be deployed");
-        new FluentWait<File>(copy).withTimeout(30, TimeUnit.SECONDS).until(new Predicate<File>() {
+        new FluentWait<File>(copy).withTimeout(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS).until(new Predicate<File>() {
             @Override
             public boolean apply(File file) {
                 return file.exists() == expected;

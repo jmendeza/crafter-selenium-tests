@@ -3,6 +3,7 @@ package org.craftercms.web.editing;
 import com.google.common.base.Predicate;
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.craftercms.web.EditingTest;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -59,7 +60,7 @@ public class DeleteContentTests extends EditingTest {
         File contentFile = new File(seleniumProperties.getProperty("craftercms.preview.deployer.path") + articlePath);
 
         // wait for file to be deleted
-        new FluentWait<File>(contentFile).withTimeout(30, TimeUnit.SECONDS).until(new Predicate<File>() {
+        new FluentWait<File>(contentFile).withTimeout(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS).until(new Predicate<File>() {
             @Override
             public boolean apply(File file) {
                 return !file.exists();

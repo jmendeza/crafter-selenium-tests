@@ -2,6 +2,7 @@ package org.craftercms.web.editing;
 
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.craftercms.web.EditingTest;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -38,7 +39,7 @@ public class HistoryTests extends EditingTest {
         logger.info("Revert to second version");
         // Since versions are sorted in descendant order, nth version would be (versionCount - n)
         By revertBy = By.cssSelector("#acnVersionWrapper .history-listing table :nth-child(" + (versionCount - restoredVersion) + ") .c5");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, revertBy);
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, revertBy);
         WebElement revertElement = driver.findElement(revertBy);
         revertElement.click();
 
@@ -73,7 +74,7 @@ public class HistoryTests extends EditingTest {
 
         logger.info("Check number of versions.");
         By historyTableItemsBy = By.cssSelector("#acnVersionWrapper .history-listing tr .c5");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 30, historyTableItemsBy);
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, historyTableItemsBy);
 
         List<WebElement> historyTableItems = driver.findElements(historyTableItemsBy);
         assertEquals(historyTableItems.size(), versions);

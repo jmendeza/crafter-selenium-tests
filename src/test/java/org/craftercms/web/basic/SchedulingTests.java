@@ -5,6 +5,7 @@ package org.craftercms.web.basic;
 
 import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -46,50 +47,45 @@ public class SchedulingTests extends BaseTest {
     }
 
     private void editAndScheduleItem(String item, final String updateString) throws InterruptedException {
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+    	driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
-    	// Login
     	logger.info("Login using admin credentials");
         login();
 
-        // Navigate to Dashboard page
         logger.info("navigate to dashboard");
         driver.navigate().to(dashboardUrl);
 
+        logger.info("Edit page");
         CStudioSeleniumUtil.editAndSavePage(driver, item, updateString);
 
+        logger.info("Refresh dashboard");
         driver.navigate().to(dashboardUrl);
-        // check my-recent-activity widget
+
         logger.info("Check my-recent activity widget");
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
               return d.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString);
             }
         });
 
-        driver.navigate().to(dashboardUrl);
-        // select and check the updated item
         logger.info("Check item and push it to schedule");
         CStudioSeleniumUtil.clickOn(driver, By.id("MyRecentActivity-" + item));
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
-        // click go-live now link
         logger.info("Select Schedule");
         driver.manage().window().maximize();
         CStudioSeleniumUtil.clickOn(driver, By.xpath("//a[text()='Schedule']"));
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
-        // set scheduled date and time
         logger.info("Setting date and time fields");
         WebElement element = driver.findElement(By.id("schedulingSelectionDatepickerOverlay"));
         element.click();
 
-        CStudioSeleniumUtil.waitForItemToDisplay(driver,60, By.id("calendarWrapper"));
+        By todayBy = By.cssSelector("#calendarWrapper .today a");
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, todayBy);
 
-        WebElement today = driver.findElement(By.cssSelector("#calendarWrapper .today a"));
+        WebElement today = driver.findElement(todayBy);
         today.click();
-
-        Thread.sleep(10000);
 
         element = driver.findElement(By.id("timepicker"));
         element.clear();
@@ -97,28 +93,23 @@ public class SchedulingTests extends BaseTest {
         // Ensure time is after now.
         element.sendKeys("11:59:59 p.m.\n");
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
-        // confirm submission on dialog
         logger.info("Confirm Schedule");
         CStudioSeleniumUtil.clickOn(driver, By.id("golivesubmitButton"));
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
-        // close dialog and wait for 30 secs for deployment to finish
         CStudioSeleniumUtil.clickOn(driver, By.id("acnOKButton"));
         logger.info("Waiting for item to get scheduled...");
-        Thread.sleep(30000);
+        Thread.sleep(TestConstants.WAITING_SECONDS_DEPLOY);
 
-        // Refresh dashboard by logout and login
         logger.info("refresh dashboard");
         logout();
         login();
-
-        // navigate to dashboard
         driver.navigate().to(dashboardUrl);
 
         logger.info("Check approvedScheduledItems activity widget");
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElement(By.id("approvedScheduledItems-body")).getText().contains(updateString);
             }

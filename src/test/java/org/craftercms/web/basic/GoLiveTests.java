@@ -3,14 +3,18 @@
  */
 package org.craftercms.web.basic;
 
+import com.google.common.base.Predicate;
 import org.craftercms.web.BaseTest;
 import org.craftercms.web.CStudioSeleniumUtil;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -33,65 +37,66 @@ public class GoLiveTests extends BaseTest {
      */
     @Test
     public void testGoLiveNow() throws InterruptedException {    	
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+    	driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
     	// Login
     	logger.info("Login using admin credentials");
-        CStudioSeleniumUtil.tryLogin(driver,
-                seleniumProperties.getProperty("craftercms.admin.username"), 
-                seleniumProperties.getProperty("craftercms.admin.password"),
-                true);
+        login();
 
         // Navigate to Dashboard page
         logger.info("navigate to dashboard");
         driver.navigate().to(dashboardUrl);
 
+        logger.info("Edit page");
         CStudioSeleniumUtil.editAndSavePage(driver, seleniumProperties.getProperty("craftercms.page.to.edit"), updateString);
 
+        logger.info("Refresh dashboard");
         driver.navigate().to(dashboardUrl);
-        // check my-recent-activity widget
+
         logger.info("Check my-recent activity widget");
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
               return d.findElement(By.id("MyRecentActivity-body")).getText().contains(updateString);
             }
         });
 
-        // select and check the updated item
         logger.info("Check item and push it to go-live");
         CStudioSeleniumUtil.clickOn(driver, By.id("MyRecentActivity-" + seleniumProperties.getProperty("craftercms.page.to.edit")));
 
-        // click go-live now link
         logger.info("Select Go Live Now");
         CStudioSeleniumUtil.clickOn(driver, By.xpath("//a[text()='Go Live Now']"));
         Thread.sleep(1000);
 
-        // confirm submission on dialog
         logger.info("Confirm Go Live Now");
         CStudioSeleniumUtil.clickOn(driver, By.id("golivesubmitButton"));
+        Thread.sleep(1000);
 
-        // close dialog and wait for 10 secs for deployment to finish
         CStudioSeleniumUtil.clickOn(driver, By.id("acnOKButton"));
         logger.info("Waiting for item to go-live...");
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
-        // Refresh dashboard by logout and login
         logger.info("refresh dashboard");
         logout();
         login();
 
-        // navigate to dashboard
         driver.navigate().to(dashboardUrl);
 
-        // check in recently-made-live to see if item exists
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        logger.info("Check in recently-made-live to see if item exists");
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
               return d.findElement(By.id("recentlyMadeLive-body")).getText().contains(updateString);
             }
         });
 
+        File fileItem = new File(seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit"));
+        new FluentWait<File>(fileItem).withTimeout(TestConstants.WAITING_SECONDS_DEPLOY, TimeUnit.SECONDS).until(new Predicate<File>() {
+            @Override
+            public boolean apply(File file) {
+                return file.exists();
+            }
+        });
         logger.info("Open file in live folder and check content exists");
-        assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit"), updateString));
+        assertTrue(CStudioSeleniumUtil.readFileContents(fileItem.getAbsolutePath(), updateString));
     }
     
     /**
@@ -101,7 +106,7 @@ public class GoLiveTests extends BaseTest {
      */
     @Test
     public void testMultiplePagesGoLiveNow() throws InterruptedException {    	
-    	driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+    	driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
     	logger.info("Login using admin credentials");
         login();
@@ -114,24 +119,23 @@ public class GoLiveTests extends BaseTest {
         CStudioSeleniumUtil.editAndSavePage(driver, seleniumProperties.getProperty("craftercms.page.to.edit"), updateString);
         CStudioSeleniumUtil.editAndSavePage(driver, seleniumProperties.getProperty("craftercms.page.to.edit1"), updateString1);
 
+        logger.info("Refresh dashboard");
         driver.navigate().to(dashboardUrl);
-        // select and check the updated item
+
         logger.info("Check item and push it to go-live");
         CStudioSeleniumUtil.clickOn(driver, By.id("MyRecentActivity-" + seleniumProperties.getProperty("craftercms.page.to.edit1")));
         CStudioSeleniumUtil.clickOn(driver, By.id("MyRecentActivity-" + seleniumProperties.getProperty("craftercms.page.to.edit")));
 
-        // click go-live now link
+        Thread.sleep(1000);
         logger.info("Select Go Live Now");
         CStudioSeleniumUtil.clickOn(driver, By.xpath("//a[text()='Go Live Now']"));
 
-        // Select "go live now" radio button
         By setToNowBy = By.id("globalSetToNow");
         CStudioSeleniumUtil.waitForItemToDisplay(driver, 10, setToNowBy);
         // Wait for item to be fully initialized
         Thread.sleep(1000);
         CStudioSeleniumUtil.clickOn(driver, setToNowBy);
 
-        // confirm submission on dialog
         logger.info("Confirm Go Live Now");
         By goLiveSubmitBy = By.id("golivesubmitButton");
         CStudioSeleniumUtil.waitForItemToDisplay(driver, 10, goLiveSubmitBy);
@@ -141,11 +145,11 @@ public class GoLiveTests extends BaseTest {
 
 
         By okBy = By.id("acnOKButton");
+        logger.info("Waiting for item to go-live...");
         CStudioSeleniumUtil.waitForItemToDisplay(driver, 10, okBy);
         // Wait for item to be fully initialized
         Thread.sleep(1000);
         CStudioSeleniumUtil.clickOn(driver, okBy);
-        logger.info("Waiting for item to go-live...");
 
         logger.info("Refresh dashboard");
         logout();
@@ -153,15 +157,20 @@ public class GoLiveTests extends BaseTest {
 
         driver.navigate().to(dashboardUrl);
 
-        // check in recently-made-live to see if item exists
-        new WebDriverWait(driver, 60).until(new ExpectedCondition<Boolean>() {
+        logger.info("Check in recently-made-live to see if item exists");
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
               return d.findElement(By.id("recentlyMadeLive-body")).getText().contains(updateString);
             }
         });
 
+        String page1Path = seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit");
+        String page2Path = seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit1");
+
+        Thread.sleep(TestConstants.WAITING_SECONDS_DEPLOY);
+
         logger.info("Open file in live folder and check content exists");
-        assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit"), updateString));
-        assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit1"), updateString1));
+        assertTrue(CStudioSeleniumUtil.readFileContents(page1Path, updateString));
+        assertTrue(CStudioSeleniumUtil.readFileContents(page2Path, updateString1));
     }
 }

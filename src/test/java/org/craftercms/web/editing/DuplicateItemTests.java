@@ -2,6 +2,7 @@ package org.craftercms.web.editing;
 
 import org.craftercms.web.CStudioSeleniumUtil;
 import org.craftercms.web.EditingTest;
+import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -35,6 +36,7 @@ public class DuplicateItemTests extends EditingTest {
         String duplicatedUrl = urlElement.getAttribute("value");
 
         logger.info("Update duplicate main content");
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.tagName("iframe"));
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript(
                 "window.frames['mce_0_ifr'].document.getElementsByTagName('body')[0].innerHTML = '<p>" + duplicatedContent + "</p>'");
