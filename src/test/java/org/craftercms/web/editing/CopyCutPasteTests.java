@@ -45,7 +45,7 @@ public class CopyCutPasteTests extends EditingTest {
         long time = System.currentTimeMillis();
         String articleTitle = "Article to cut/paste " + time;
         String articleContent = "This is the content of the article to be copied/pasted." + time;
-        String articleUrl = "to_copy_paste_" + time;
+        String articleUrl = "to_cut_paste_" + time;
         createArticle(articleTitle, articleContent, articleUrl);
 
         logger.info("Cut and paste page");

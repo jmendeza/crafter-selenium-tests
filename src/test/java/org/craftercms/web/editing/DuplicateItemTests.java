@@ -6,7 +6,6 @@ import org.craftercms.web.TestConstants;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebElement;
 
 import java.io.File;
 
@@ -28,12 +27,7 @@ public class DuplicateItemTests extends EditingTest {
         String articleUrl = createArticle();
         String articlePath = "/site/website/" + articleUrl + "/index.xml";
 
-        openDuplicateWindow(articlePath);
-
-        logger.info("Read duplicate article url");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 20, By.cssSelector("#file-name input.datum"));
-        WebElement urlElement = driver.findElement(By.cssSelector("#file-name input.datum"));
-        String duplicatedUrl = urlElement.getAttribute("value");
+        String duplicatedUrl = openDuplicateWindow(articlePath);
 
         logger.info("Update duplicate main content");
         CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, By.tagName("iframe"));
@@ -53,16 +47,6 @@ public class DuplicateItemTests extends EditingTest {
         assertTrue(CStudioSeleniumUtil.readFileContents(seleniumProperties.getProperty("craftercms.preview.deployer.path") + duplicatedPath, duplicatedContent));
     }
 
-    private void openDuplicateWindow(String articlePath) {
-        logger.info("Refresh dashboard");
-        driver.navigate().to(dashboardUrl);
-
-        CStudioSeleniumUtil.clickOn(driver, By.id("MyRecentActivity-" + articlePath));
-        CStudioSeleniumUtil.clickOn(driver, By.xpath("//a[text()='Duplicate']"));
-
-        CStudioSeleniumUtil.switchToEditWindow(driver);
-    }
-
     @Test
     public void duplicatePageAndCancelTest() {
         logger.info("Login as admin");
@@ -71,16 +55,9 @@ public class DuplicateItemTests extends EditingTest {
         String articleUrl = createArticle();
         String articlePath = "/site/website/" + articleUrl + "/index.xml";
 
-        openDuplicateWindow(articlePath);
-
-        logger.info("Read duplicate article fields");
-        CStudioSeleniumUtil.waitForItemToDisplay(driver, 20, By.cssSelector("#file-name input.datum"));
-        WebElement urlElement = driver.findElement(By.cssSelector("#file-name input.datum"));
-        String duplicatedUrl = urlElement.getAttribute("value");
+        String duplicatedUrl = openDuplicateWindow(articlePath);
 
         CStudioSeleniumUtil.waitForItemToDisplay(driver, 20, By.cssSelector("#internal-name input.datum"));
-        WebElement internalNameElement = driver.findElement(By.cssSelector("#internal-name input.datum"));
-        String duplicatedInternalName = internalNameElement.getAttribute("value");
 
         logger.info("Cancel edition");
         CStudioSeleniumUtil.clickOn(driver, By.cssSelector(".cstudio-form-controls-button-container [value=\"Cancel\"]"));

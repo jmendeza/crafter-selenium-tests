@@ -1,5 +1,11 @@
 package org.craftercms.web;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -8,6 +14,8 @@ import java.util.logging.Logger;
 public class EditingTest extends BaseTest {
 
     protected final Logger logger = Logger.getLogger(getClass().getName());
+
+    private List<CrafterContent> createdContents;
 
     /**
      * Creates a new article with generated fields.
@@ -48,6 +56,12 @@ public class EditingTest extends BaseTest {
 
         logger.info("Create article");
         CStudioSeleniumUtil.createArticle(driver, "/site/website" + path, url, content, title, siteName);
+
+        CrafterContent article = new CrafterContent();
+        article.path = "/site/website/" + url;
+        article.uri = "/site/website/" + url + "/index.xml";
+        article.browserUri = "/" + url;
+        createdContents.add(article);
     }
 
     /**
@@ -60,6 +74,12 @@ public class EditingTest extends BaseTest {
      */
     protected void createTout(String path, String toutName, String headline, String internalName) {
         CStudioSeleniumUtil.createTout(driver, "/site/components/touts/" + path, toutName, headline, internalName, siteName);
+
+        CrafterContent tout = new CrafterContent();
+        tout.path = "/site/components/touts/" + path;
+        tout.browserUri = "/touts/" + toutName + ".xml";
+        tout.uri = "/site/components" + tout.browserUri;
+        createdContents.add(tout);
     }
 
     /**
@@ -101,7 +121,21 @@ public class EditingTest extends BaseTest {
      * @return generated name
      */
     protected void createPageFolder(String folderName) {
-        createFolder(folderName, "/website");
+        createPageFolder(folderName, "");
+    }
+
+    /**
+     * Creates a folder at path with the name name.
+     *
+     * @return generated name
+     */
+    protected void createPageFolder(String folderName, String path) {
+        createFolder(folderName, "/website" + path);
+
+        CrafterContent folder = new CrafterContent();
+        folder.uri = folder.path = "/site/website/" + folderName;
+        folder.browserUri = path + "/" + folderName;
+        createdContents.add(folder);
     }
 
     /**
@@ -111,6 +145,10 @@ public class EditingTest extends BaseTest {
      */
     protected void createComponentFolder(String folderName) {
         createFolder(folderName, "/components");
+
+        CrafterContent folder = new CrafterContent();
+        folder.browserUri = folder.uri = folder.path = "/site/components/" + folderName;
+        createdContents.add(folder);
     }
 
     /**
@@ -119,7 +157,62 @@ public class EditingTest extends BaseTest {
      * @param folderName name the new folder will have
      * @param path       path to create the folder at. This path should be relative to /site/
      */
-    protected void createFolder(String folderName, String path) {
+    private void createFolder(String folderName, String path) {
         CStudioSeleniumUtil.createFolder(driver, folderName, "/site" + path, siteName);
+    }
+
+    protected String openDuplicateWindow(String articlePath) {
+        logger.info("Refresh dashboard");
+        driver.navigate().to(dashboardUrl);
+
+        CStudioSeleniumUtil.clickOn(driver, By.id("MyRecentActivity-" + articlePath));
+        CStudioSeleniumUtil.clickOn(driver, By.xpath("//a[text()='Duplicate']"));
+
+        CStudioSeleniumUtil.switchToEditWindow(driver);
+
+        logger.info("Read duplicate article url");
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, 20, By.cssSelector("#file-name input.datum"));
+        WebElement urlElement = driver.findElement(By.cssSelector("#file-name input.datum"));
+        String duplicatedUrl = urlElement.getAttribute("value");
+
+        CrafterContent article = new CrafterContent();
+        article.path = "/site/website/" + duplicatedUrl;
+        article.uri = "/site/website/" + duplicatedUrl + "/index.xml";
+        article.browserUri = "/" + duplicatedUrl;
+        createdContents.add(article);
+
+        return duplicatedUrl;
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        createdContents = new ArrayList<CrafterContent>();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        for (CrafterContent content : createdContents) {
+            try {
+                driver.navigate().to(dashboardUrl);
+                js.executeScript(
+                        "CStudioAuthoring.Operations.deleteContent([{" +
+                                "'path': '" + content.path + "'," +
+                                "'uri': '" + content.uri + "'," +
+                                "'browserUri': '" + content.browserUri + "'" +
+                                "}]);");
+                CStudioSeleniumUtil.clickOn(driver, By.cssSelector("input.do-delete"));
+            } catch (Exception ex) {
+                logger.info("Error while trying to delete '" + content.path + "', " + ex.getMessage());
+            }
+        }
+        super.tearDown();
+    }
+
+    private class CrafterContent {
+        public String path;
+        public String uri;
+        public String browserUri;
     }
 }

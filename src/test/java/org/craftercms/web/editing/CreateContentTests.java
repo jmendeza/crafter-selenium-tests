@@ -60,8 +60,7 @@ public class CreateContentTests extends EditingTest {
         String outerFolderName = createPageFolder();
         String innerFolderName = "selenium" + System.currentTimeMillis();
 
-        createFolder(innerFolderName, "/website/" + outerFolderName);
-
+        createPageFolder(innerFolderName, "/" + outerFolderName);
 
         String path = "/" + outerFolderName + "/" + innerFolderName;
         String articleUrl = "selenium" + System.currentTimeMillis();
