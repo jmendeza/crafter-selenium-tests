@@ -16,7 +16,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
@@ -24,8 +23,6 @@ import static org.junit.Assert.assertTrue;
  * @author Praveen C Elineni
  */
 public class PageEditTests extends BaseTest {
-
-    private static final Logger logger = Logger.getLogger("PageEditTests.class");
 
     private String updateString = "About Us Page Updated";
 

@@ -14,14 +14,12 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
  * @author Praveen C Elineni
  *
  */
 public class SchedulingTests extends BaseTest {
-	private static final Logger logger = Logger.getLogger("SchedulingTests.class");
 
     /**
      * Test scheduling an item to go live, then cancelling, editing

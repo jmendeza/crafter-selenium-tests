@@ -12,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
@@ -20,8 +19,6 @@ import static org.junit.Assert.assertTrue;
  * @author Jonathan Méndez
  */
 public abstract class DashboardTestsBase extends BaseTest {
-
-    private static final Logger logger = Logger.getLogger("DashboardTestsBase.class");
 
     protected abstract String getUpdateString();
 

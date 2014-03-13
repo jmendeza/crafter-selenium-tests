@@ -16,7 +16,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 
@@ -25,7 +24,6 @@ import static org.junit.Assert.assertTrue;
  *
  */
 public class GoLiveTests extends BaseTest {
-    private static final Logger logger = Logger.getLogger("GoLiveTest.class");
 
     private final String updateString = "About Page Updated";
     private final String updateString1 = "Industry Solutions Updated";
@@ -39,12 +37,10 @@ public class GoLiveTests extends BaseTest {
     public void testGoLiveNow() throws InterruptedException {    	
     	driver.manage().timeouts().implicitlyWait(TestConstants.WAITING_SECONDS_WEB_ELEMENT, TimeUnit.SECONDS);
 
-    	// Login
     	logger.info("Login using admin credentials");
         login();
 
-        // Navigate to Dashboard page
-        logger.info("navigate to dashboard");
+        logger.info("Navigate to dashboard");
         driver.navigate().to(dashboardUrl);
 
         logger.info("Edit page");
@@ -111,8 +107,7 @@ public class GoLiveTests extends BaseTest {
     	logger.info("Login using admin credentials");
         login();
 
-        // Navigate to Dashboard page
-        logger.info("navigate to dashboard");
+        logger.info("Navigate to dashboard");
         driver.navigate().to(dashboardUrl);
 
         logger.info("Edit pages");

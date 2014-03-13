@@ -6,14 +6,11 @@ import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * @author Jonathan Méndez
  */
 public class EditingTest extends BaseTest {
-
-    protected final Logger logger = Logger.getLogger(getClass().getName());
 
     private List<CrafterContent> createdContents;
 
@@ -117,8 +114,6 @@ public class EditingTest extends BaseTest {
 
     /**
      * Creates a folder at pages root with the name name.
-     *
-     * @return generated name
      */
     protected void createPageFolder(String folderName) {
         createPageFolder(folderName, "");
@@ -126,8 +121,6 @@ public class EditingTest extends BaseTest {
 
     /**
      * Creates a folder at path with the name name.
-     *
-     * @return generated name
      */
     protected void createPageFolder(String folderName, String path) {
         createFolder(folderName, "/website" + path);

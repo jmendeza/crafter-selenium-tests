@@ -20,12 +20,12 @@ import java.util.logging.Logger;
 
 public class BaseTest extends TestWatcher {
 
-	private static final Logger logger = Logger.getLogger("BaseTest.class");
+    protected final Logger logger = Logger.getLogger(getClass().getName());
 
     private final static String SELENIUM_PROPERTIES = "selenium.properties";
 
     protected WebDriver driver;
-	private String screenshotOutputFolder;
+    private String screenshotOutputFolder;
     protected Selenium selenium;
     protected static DesiredCapabilities desiredCapabilities;
     protected Properties seleniumProperties = new Properties();
@@ -34,7 +34,7 @@ public class BaseTest extends TestWatcher {
 
     @Before
     public void setUp() throws Exception {
-    	seleniumProperties.load(LoginTests.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
+        seleniumProperties.load(LoginTests.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
 
         initializeDriver();
         screenshotOutputFolder = seleniumProperties.getProperty("phantomjs.screenshot.folder.path");
@@ -51,15 +51,15 @@ public class BaseTest extends TestWatcher {
         driver = new ChromeDriver(desiredCapabilities);
     }
 
-	@Override
+    @Override
     public void failed(Throwable e, Description description) {
-	   System.out.println("TEST CASE FAILED");
-       try {
+        System.out.println("TEST CASE FAILED");
+        try {
             File shoot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
             FileUtils.copyFile(shoot, new File(screenshotOutputFolder +
                     File.separator + description.getMethodName() + ".png"));
         } catch (IOException ex) {
-        	logger.info("Unable to save screenshot");
+            logger.info("Unable to save screenshot");
         }
     }
 
@@ -74,20 +74,20 @@ public class BaseTest extends TestWatcher {
     }
 
     public String getScreenshotOutputFolder() {
-		return screenshotOutputFolder;
-	}
+        return screenshotOutputFolder;
+    }
 
-	public void setScreenshotOutputFolder(String screenshotOutputFolder) {
-		this.screenshotOutputFolder = screenshotOutputFolder;
-	}
+    public void setScreenshotOutputFolder(String screenshotOutputFolder) {
+        this.screenshotOutputFolder = screenshotOutputFolder;
+    }
 
-	public WebDriver getDriver() {
-		return driver;
-	}
+    public WebDriver getDriver() {
+        return driver;
+    }
 
-	public void setDriver(WebDriver driver) {
-		this.driver = driver;
-	}
+    public void setDriver(WebDriver driver) {
+        this.driver = driver;
+    }
 
     protected void login() {
         logger.info("Login as " + getUsername());
@@ -97,7 +97,7 @@ public class BaseTest extends TestWatcher {
                 true);
     }
 
-    protected void logout () {
+    protected void logout() {
         CStudioSeleniumUtil.tryLogout(driver);
     }
 
