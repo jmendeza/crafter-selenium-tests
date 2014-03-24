@@ -23,8 +23,8 @@ public class ScheduleToBeDeletedTests extends BaseTest {
         logger.info("Navigate to dashboard");
         driver.navigate().to(dashboardUrl);
 
-        String pageToUpdate = seleniumProperties.getProperty("craftercms.page.to.edit");
-        String updateString = "About Page " + System.currentTimeMillis();
+        String pageToUpdate = seleniumProperties.getProperty("craftercms.page.to.schedule.to.delete");
+        String updateString = "Resources " + System.currentTimeMillis();
 
         logger.info("Edit page");
         CStudioSeleniumUtil.editAndSavePage(driver, pageToUpdate, updateString);
@@ -68,7 +68,7 @@ public class ScheduleToBeDeletedTests extends BaseTest {
         Thread.sleep(2000);
 
         String baseUrl = seleniumProperties.getProperty("craftercms.base.url");
-        String pageToEditUrl = seleniumProperties.getProperty("craftercms.page.to.edit.url");
+        String pageToEditUrl = seleniumProperties.getProperty("craftercms.page.to.schedule.to.delete.url");
 
         logger.info("Navigate to '" + pageToEditUrl + "'");
         driver.navigate().to(baseUrl + pageToEditUrl);

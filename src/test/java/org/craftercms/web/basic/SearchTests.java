@@ -20,7 +20,7 @@ public class SearchTests extends BaseTest {
         driver.navigate().to(dashboardUrl);
 
         String checkText = "Can big data deliver on the promise of real-time risk management?";
-        String searchQuery = "risk management";
+        String searchQuery = "big data";
         String searchBaseUrl = seleniumProperties.getProperty("craftercms.base.url") + seleniumProperties.getProperty("craftercms.site.search.url");
 
         String searchUrl = String.format(searchBaseUrl, searchQuery);
