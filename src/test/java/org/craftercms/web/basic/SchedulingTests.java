@@ -99,7 +99,7 @@ public class SchedulingTests extends BaseTest {
 
         CStudioSeleniumUtil.clickOn(driver, By.id("acnOKButton"));
         logger.info("Waiting for item to get scheduled...");
-        Thread.sleep(TestConstants.WAITING_SECONDS_DEPLOY);
+        Thread.sleep(1000 * TestConstants.WAITING_SECONDS_DEPLOY);
 
         logger.info("refresh dashboard");
         logout();

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Jonathan Méndez
  */
-public class SearchTest extends BaseTest {
+public class SearchTests extends BaseTest {
 
     @Test
     public void searchTest() {

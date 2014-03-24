@@ -162,7 +162,7 @@ public class GoLiveTests extends BaseTest {
         String page1Path = seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit");
         String page2Path = seleniumProperties.getProperty("craftercms.live.deployer.path") + seleniumProperties.getProperty("craftercms.page.to.edit1");
 
-        Thread.sleep(TestConstants.WAITING_SECONDS_DEPLOY);
+        Thread.sleep(1000 * TestConstants.WAITING_SECONDS_DEPLOY);
 
         logger.info("Open file in live folder and check content exists");
         assertTrue(CStudioSeleniumUtil.readFileContents(page1Path, updateString));

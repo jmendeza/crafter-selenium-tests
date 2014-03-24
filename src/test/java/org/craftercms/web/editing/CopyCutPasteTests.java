@@ -103,9 +103,13 @@ public class CopyCutPasteTests extends EditingTest {
         driver.navigate().to(dashboardUrl);
 
         logger.info("Open context menu and click " + option + " for new article");
-        CStudioSeleniumUtil.contextMenuOptionPage(driver, itemTitle, option);
+        CStudioSeleniumUtil.ensurePagesTreeIsExpanded(driver);
+        CStudioSeleniumUtil.contextMenuOption(driver, option, CStudioSeleniumUtil.findItemWithName(driver, itemTitle));
+
         logger.info("Open context menu and click 'Paste' for new folder");
-        CStudioSeleniumUtil.contextMenuOptionPage(driver, folderName, "Paste");
+        CStudioSeleniumUtil.ensurePagesTreeIsExpanded(driver);
+        CStudioSeleniumUtil.contextMenuOption(driver, "Paste", CStudioSeleniumUtil.findItemWithName(driver, folderName));
+
         checkPageFileExists(folderName, itemUrl, true);
     }
 
@@ -117,9 +121,11 @@ public class CopyCutPasteTests extends EditingTest {
         driver.navigate().to(dashboardUrl);
 
         logger.info("Open context menu and click " + option + " for new article");
-        CStudioSeleniumUtil.contextMenuOptionComponent(driver, itemTitle, option);
+        CStudioSeleniumUtil.ensureComponentsTreeIsExpanded(driver);
+        CStudioSeleniumUtil.contextMenuOption(driver, option, CStudioSeleniumUtil.findItemWithName(driver, itemTitle));
         logger.info("Open context menu and click 'Paste' for new folder");
-        CStudioSeleniumUtil.contextMenuOptionComponent(driver, folderName, "Paste");
+        CStudioSeleniumUtil.ensureComponentsTreeIsExpanded(driver);
+        CStudioSeleniumUtil.contextMenuOption(driver, "Paste", CStudioSeleniumUtil.findItemWithName(driver, folderName));
         checkComponentFileExists(folderName, itemUrl, true);
     }
 

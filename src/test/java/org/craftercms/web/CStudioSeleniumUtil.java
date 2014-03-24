@@ -49,6 +49,10 @@ public class CStudioSeleniumUtil {
 	public static void tryLogin(WebDriver driver, String userName, String password, boolean expected) {
         logger.info("Logging in");
         driver.get(seleniumProperties.getProperty("craftercms.login.page.url"));
+        try {
+            Thread.sleep(1000);
+        } catch (Exception ex) {
+        }
         CStudioSeleniumUtil.clickOn(driver, By.name("username"));
         WebElement userNameElement = driver.findElement(By.name("username"));
         userNameElement.clear();
@@ -321,7 +325,15 @@ public class CStudioSeleniumUtil {
         CStudioSeleniumUtil.editPageJS(driver, editPage,
                 seleniumProperties.getProperty("craftercms.page.content.type"),
                 seleniumProperties.getProperty("craftercms.sitename"));
-
+        try {
+            Thread.sleep(1000);
+        } catch (Exception ex) {
+        }
+        // Cancel schedule to edit, when needed
+        List<WebElement> continueButton = driver.findElements(By.cssSelector(".cancel-workflow-view button.continue"));
+        if (continueButton.size() > 0) {
+            continueButton.get(0).click();
+        }
         switchToEditWindow(driver);
 
         // Find internal-name field and edit
@@ -412,21 +424,9 @@ public class CStudioSeleniumUtil {
         switchToMainWindow(driver);
     }
 
-    public static void contextMenuOptionPage(WebDriver driver, String itemTitle, String option) throws InterruptedException {
-        WebElement pageItem = getPageTreeItem(driver, itemTitle);
-
-        contextMenuOption(driver, option, pageItem);
-    }
-
-    public static void contextMenuOptionComponent(WebDriver driver, String itemTitle, String option) throws InterruptedException {
-        WebElement componentItem = getComponentTreeItem(driver, itemTitle);
-
-        contextMenuOption(driver, option, componentItem);
-    }
-
-    private static void contextMenuOption(WebDriver driver, String option, WebElement articleItem) {
-        final By menuItemsBy = By.cssSelector("#ContextmenuWrapper0 li.yuimenuitem a");
-        new Actions(driver).contextClick(articleItem).perform();
+    public static void contextMenuOption(WebDriver driver, String option, WebElement item) {
+        final By menuItemsBy = By.cssSelector("#acn-context-menu li.yuimenuitem a");
+        new Actions(driver).contextClick(item).perform();
         new WebDriverWait(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT).until(new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver d) {
                 return d.findElements(menuItemsBy).size() > 0;
@@ -446,7 +446,7 @@ public class CStudioSeleniumUtil {
         assertTrue(optionFound);
     }
 
-    private static void ensureDropDownIsVisible(WebDriver driver) throws InterruptedException {
+    public static void ensureDropDownIsVisible(WebDriver driver) throws InterruptedException {
         boolean dropDownVisible = false;
         final By dropDownMenuElementBy = By.id("acn-dropdown-menu-wrapper");
         List<WebElement> dropDownElement = driver.findElements(dropDownMenuElementBy);
@@ -541,32 +541,111 @@ public class CStudioSeleniumUtil {
         Thread.sleep(2000);
     }
 
-    public static boolean checkItemIsInPageTree(WebDriver driver, String itemName) throws InterruptedException {
-        ensurePagesTreeIsExpanded(driver);
-        return getPageTreeItem(driver, itemName) != null;
-    }
+    public static void ensureTemplatesTreeIsExpanded(WebDriver driver) throws InterruptedException{
+        ensureDropDownIsVisible(driver);
 
-    public static WebElement getComponentTreeItem(WebDriver driver, String itemName) throws InterruptedException {
-        ensureComponentsTreeIsExpanded(driver);
-        return findItemWithName(driver, itemName);
-    }
-
-    public static WebElement getPageTreeItem(WebDriver driver, String itemName) throws InterruptedException {
-        ensurePagesTreeIsExpanded(driver);
-        return findItemWithName(driver, itemName);
-    }
-
-    private static WebElement findItemWithName(WebDriver driver, String itemName) {
-        List<WebElement> elements = driver.findElements(By.cssSelector(".ygtvitem tr.ygtvrow"));
-        WebElement result = null;
-        for (WebElement element : elements) {
-            if (element.getText().contains(itemName)) {
-                result = element;
-                break;
+        By templatesTreeRootBy = By.xpath("//div[@id='acn-dropdown-menu-wrapper']//span[contains(.,'web')]");
+        List<WebElement> componentsTreeRoot = driver.findElements(templatesTreeRootBy);
+        boolean needToExpand = true;
+        if (componentsTreeRoot.size() > 0) {
+            if (componentsTreeRoot.get(0).isDisplayed()) {
+                needToExpand = false;
             }
         }
-        assertNotNull("Couldn't find element with name: '" + itemName + "'", result);
-        return result;
+        if (needToExpand) {
+            Thread.sleep(1000);
+            clickOn(driver, By.id("templates-tree"));
+            waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, templatesTreeRootBy);
+        }
+
+
+
+        By commonFolderBy = By.xpath("//span[contains(.,'common')]");
+        List<WebElement> toutsFolder = driver.findElements(commonFolderBy);
+        needToExpand = true;
+        if (toutsFolder.size() > 0) {
+            if (toutsFolder.get(0).isDisplayed()) {
+                needToExpand = false;
+            }
+        }
+        if (needToExpand) {
+            clickOn(driver, templatesTreeRootBy);
+            waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, commonFolderBy);
+        }
+    }
+
+    public static void ensureStaticAssetsTreeIsExpanded(WebDriver driver) throws InterruptedException {
+        ensureDropDownIsVisible(driver);
+
+        By assetsTreeFoldersBy = By.xpath("//a[@id='static assets-tree']/ancestor::div[contains(@class, 'assets-tree')]//table[contains(@class,'ygtvtable')]");
+        List<WebElement> assetsTreeFolderTables = driver.findElements(assetsTreeFoldersBy);
+        boolean needToExpand = true;
+        if (assetsTreeFolderTables.size() > 0) {
+            if (assetsTreeFolderTables.get(0).isDisplayed()) {
+                needToExpand = false;
+            }
+        }
+        if (needToExpand) {
+            Thread.sleep(1000);
+            clickOn(driver, By.id("static assets-tree"));
+            waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, assetsTreeFoldersBy);
+        }
+        assetsTreeFolderTables = driver.findElements(assetsTreeFoldersBy);
+        for (WebElement folderTable : assetsTreeFolderTables) {
+            if (folderTable.getAttribute("class").contains("collapsed")) {
+                List<WebElement> folder = folderTable.findElements(By.cssSelector("span.acn-parent-folder"));
+                if (folder.size() > 0) {
+                    folder.get(0).click();
+                    Thread.sleep(1000);
+                }
+            }
+        }
+    }
+
+    /**
+     * Find an element in content tree with name itemName
+     * REQUIRES relevant part of content tree to be expanded.
+     * @param driver web driver
+     * @param itemName name of the item to find
+     * @return WebElement with text containing itemName, or null if none was found
+     */
+    public static WebElement findItemWithName(WebDriver driver, String itemName) {
+        List<WebElement> elements = driver.findElements(By.xpath("//div[@class='ygtvitem']//tr[@class='ygtvrow' and contains(.,'" + itemName + "')]"));
+        if (elements.size() > 0) {
+            return elements.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * Upload a file to the path represented by parentElement (element under Site Content drop down)
+     * @param driver
+     * @param file
+     * @param parentElement
+     */
+    public static void uploadFile(WebDriver driver, File file, WebElement parentElement) {
+        logger.info("Choose 'Upload' option in context menu");
+        CStudioSeleniumUtil.contextMenuOption(driver, "Upload", parentElement);
+
+        By fileInputBy = By.id("uploadFileNameId");
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, fileInputBy);
+        CStudioSeleniumUtil.waitForItemToBeEnabled(driver, TestConstants.WAITING_SECONDS_DEPLOY, fileInputBy);
+
+        logger.info("Indicate file path");
+        WebElement fileInput = driver.findElement(fileInputBy);
+        fileInput.sendKeys(file.getAbsolutePath());
+
+        logger.info("Confirm upload");
+        final By uploadButtonBy = By.id("uploadButton");
+        driver.findElement(uploadButtonBy).click();
+
+        logger.info("Wait for file to upload");
+        new WebDriverWait(driver, TestConstants.WAITING_SECONDS_DEPLOY).until(new ExpectedCondition<Boolean>() {
+            @Override
+            public Boolean apply(WebDriver d) {
+                return d.findElements(uploadButtonBy).size() == 0;
+            }
+        });
     }
 
     /**

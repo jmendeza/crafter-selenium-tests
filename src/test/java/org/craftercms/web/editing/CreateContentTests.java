@@ -4,6 +4,7 @@ import org.craftercms.web.CStudioSeleniumUtil;
 import org.craftercms.web.EditingTest;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -45,8 +46,8 @@ public class CreateContentTests extends EditingTest {
 
         logger.info("Check new folder exists");
 
-        boolean folderFound = CStudioSeleniumUtil.checkItemIsInPageTree(driver, folderName);
-        assertTrue(folderFound);
+        CStudioSeleniumUtil.ensurePagesTreeIsExpanded(driver);
+        assertNotNull(CStudioSeleniumUtil.findItemWithName(driver, folderName));
     }
 
     @Test

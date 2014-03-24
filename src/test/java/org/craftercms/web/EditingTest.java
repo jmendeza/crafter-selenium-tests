@@ -195,15 +195,67 @@ public class EditingTest extends BaseTest {
                                 "'uri': '" + content.uri + "'," +
                                 "'browserUri': '" + content.browserUri + "'" +
                                 "}]);");
-                CStudioSeleniumUtil.clickOn(driver, By.cssSelector("input.do-delete"));
+                By doDeleteBy = By.cssSelector("input.do-delete");
+                CStudioSeleniumUtil.waitForItemToDisplay(driver, 2, doDeleteBy);
+                CStudioSeleniumUtil.waitForItemToBeEnabled(driver, 2, doDeleteBy);
+                CStudioSeleniumUtil.clickOn(driver, doDeleteBy);
+                logger.info("Item at '" + content.uri + "' has been deleted");
             } catch (Exception ex) {
-                logger.info("Error while trying to delete '" + content.path + "', " + ex.getMessage());
+                logger.info("Error while trying to delete '" + content.uri + "', " + ex.getMessage());
             }
         }
         super.tearDown();
     }
 
-    private class CrafterContent {
+    protected void openPreviewTools() throws InterruptedException {
+        Thread.sleep(2000);
+
+        boolean previewToolsVisible = false;
+        By previewToolsContainerBy = By.id("preview-tools-panel-container");
+        List<WebElement> previewToolsContainer = driver.findElements(previewToolsContainerBy);
+        if (previewToolsContainer.size() > 0) {
+            previewToolsVisible = previewToolsContainer.get(0).isDisplayed();
+        }
+        if (!previewToolsVisible) {
+            CStudioSeleniumUtil.clickOn(driver, By.id("acn-preview-tools-image"));
+            CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, previewToolsContainerBy);
+        }
+
+        By inContextEditingBy = By.xpath("//div[@id='preview-tools-panel-container']//a[text()='In-Context Editing']");
+        CStudioSeleniumUtil.waitForItemToDisplay(driver, TestConstants.WAITING_SECONDS_WEB_ELEMENT, inContextEditingBy);
+
+        By editTemplateBy = By.xpath("//div[@id='preview-tools-panel-container']//span[text()='Edit Template']/preceding-sibling::*[1]");
+        List<WebElement> editTemplate = driver.findElements(editTemplateBy);
+        if (editTemplate.size() > 0) {
+            if (!editTemplate.get(0).isDisplayed()) {
+                CStudioSeleniumUtil.clickOn(driver, inContextEditingBy);
+            }
+        }
+    }
+
+    protected List<CrafterContent> getCreatedContent() {
+        return createdContents;
+    }
+
+    /**
+     * Opens template editor for current page. Requires to be
+     * in an page with 'In-context Editing' enabled.
+     *
+     * @throws InterruptedException
+     */
+    protected void openTemplateEditor() throws InterruptedException {
+        openPreviewTools();
+
+        By editTemplateBy = By.xpath("//div[@id='preview-tools-panel-container']//span[text()='Edit Template']/preceding-sibling::*[1]");
+
+        logger.info("Edit page template");
+        CStudioSeleniumUtil.clickOn(driver, editTemplateBy);
+    }
+
+    protected class CrafterContent {
+        public CrafterContent() {
+        }
+
         public String path;
         public String uri;
         public String browserUri;

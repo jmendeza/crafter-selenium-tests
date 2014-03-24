@@ -32,6 +32,9 @@ public class BaseTest extends TestWatcher {
     protected String dashboardUrl;
     protected String siteName;
 
+    private String username;
+    private String password;
+
     @Before
     public void setUp() throws Exception {
         seleniumProperties.load(LoginTests.class.getClassLoader().getResourceAsStream(SELENIUM_PROPERTIES));
@@ -41,6 +44,9 @@ public class BaseTest extends TestWatcher {
         driver.manage().window().maximize();
         siteName = seleniumProperties.getProperty("craftercms.sitename");
         dashboardUrl = String.format(seleniumProperties.getProperty("craftercms.site.dashboard.url"), siteName);
+
+        username = seleniumProperties.getProperty("craftercms.admin.username");
+        password = seleniumProperties.getProperty("craftercms.admin.password");
     }
 
     protected void initializeDriver() {
@@ -90,7 +96,7 @@ public class BaseTest extends TestWatcher {
     }
 
     protected void login() {
-        logger.info("Login as " + getUsername());
+        logger.info("Login as '" + getUsername() + "'");
         CStudioSeleniumUtil.tryLogin(driver,
                 getUsername(),
                 getPassword(),
@@ -98,15 +104,24 @@ public class BaseTest extends TestWatcher {
     }
 
     protected void logout() {
+        logger.info("Logout");
         CStudioSeleniumUtil.tryLogout(driver);
     }
 
     protected String getUsername() {
-        return seleniumProperties.getProperty("craftercms.admin.username");
+        return this.username;
+    }
+
+    protected void setUsername(String username) {
+        this.username = username;
     }
 
     protected String getPassword() {
-        return seleniumProperties.getProperty("craftercms.admin.password");
+        return this.password;
+    }
+
+    protected void setPassword(String password) {
+        this.password = password;
     }
 
 }
